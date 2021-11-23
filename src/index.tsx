@@ -2,9 +2,12 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import App from 'components/App';
 import reportWebVitals from 'reportWebVitals';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { GlobalStyle } from 'theme/globalStyles';
 
 ReactDOM.render(
     <StrictMode>
+        <GlobalStyle />
         <App />
     </StrictMode>,
     document.getElementById('root'),
