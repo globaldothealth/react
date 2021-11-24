@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import mapboxgl, { Map } from 'mapbox-gl';
 
+// Custom hook that configures Mapbox map and displays it in the provided mapContainer ref
 export function useMapboxMap(
     mapboxAccessToken: string,
     mapContainer: React.RefObject<HTMLDivElement>,

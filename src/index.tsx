@@ -4,11 +4,16 @@ import App from 'components/App';
 import reportWebVitals from 'reportWebVitals';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { GlobalStyle } from 'theme/globalStyles';
+import { store } from 'redux/store';
+import { Provider } from 'react-redux';
 
 ReactDOM.render(
     <StrictMode>
         <GlobalStyle />
-        <App />
+
+        <Provider store={store}>
+            <App />
+        </Provider>
     </StrictMode>,
     document.getElementById('root'),
 );
