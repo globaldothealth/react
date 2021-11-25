@@ -5,10 +5,21 @@ import * as countryViewSelectors from 'redux/CountryView/selectors';
 import { fetchCountriesData } from 'redux/CountryView/thunks';
 import { setMapLoaded } from 'redux/CountryView/slice';
 import countryLookupTable from 'data/admin0-lookup-table.json';
-import { CasesNumberColors } from 'models/Colors';
+import { CountryViewColors } from 'models/Colors';
 import { MapSourceDataEvent, EventData } from 'mapbox-gl';
+import Legend from 'components/Legend';
+import { LegendRow } from 'models/LegendRow';
 
 import { MapContainer } from 'theme/globalStyles';
+
+const dataLayers: LegendRow[] = [
+    { label: '< 10k', color: CountryViewColors['10K'] },
+    { label: '10k-100k', color: CountryViewColors['100K'] },
+    { label: '100k-500k', color: CountryViewColors['500K'] },
+    { label: '500k-2M', color: CountryViewColors['2M'] },
+    { label: '2M-10M', color: CountryViewColors['10M'] },
+    { label: '> 10M', color: CountryViewColors['10M+'] },
+];
 
 const CountryView: React.FC = () => {
     const mapboxAccessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || '';
@@ -82,6 +93,11 @@ const CountryView: React.FC = () => {
             }
         }
 
+        // This fixes console errors when hot reloading app
+        if (mapRef.getLayer('countries-join')) {
+            mapRef.removeLayer('countries-join');
+        }
+
         mapRef.addLayer(
             {
                 id: 'countries-join',
@@ -95,22 +111,22 @@ const CountryView: React.FC = () => {
                         [
                             'case',
                             ['<', ['feature-state', 'caseCount'], 10000],
-                            CasesNumberColors['10K'],
+                            CountryViewColors['10K'],
                             ['<', ['feature-state', 'caseCount'], 100000],
-                            CasesNumberColors['100K'],
+                            CountryViewColors['100K'],
                             ['<', ['feature-state', 'caseCount'], 500000],
-                            CasesNumberColors['500K'],
+                            CountryViewColors['500K'],
                             ['<', ['feature-state', 'caseCount'], 2000000],
-                            CasesNumberColors['2M'],
+                            CountryViewColors['2M'],
                             ['<', ['feature-state', 'caseCount'], 10000000],
-                            CasesNumberColors['10M'],
+                            CountryViewColors['10M'],
                             ['>=', ['feature-state', 'caseCount'], 10000000],
-                            CasesNumberColors['10M+'],
-                            CasesNumberColors.Fallback,
+                            CountryViewColors['10M+'],
+                            CountryViewColors.Fallback,
                         ],
-                        CasesNumberColors.Fallback,
+                        CountryViewColors.Fallback,
                     ],
-                    'fill-outline-color': CasesNumberColors.Outline,
+                    'fill-outline-color': CountryViewColors.Outline,
                 },
             },
             'waterway-label',
@@ -127,6 +143,7 @@ const CountryView: React.FC = () => {
                 ref={mapContainer}
                 isLoading={isLoading || !mapLoaded}
             />
+            <Legend title="Line List Cases" legendRows={dataLayers} />
         </>
     );
 };

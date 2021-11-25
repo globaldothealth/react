@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { CountryData } from 'models/CountryData';
+import { CountryDataRow } from 'models/CountryViewModels';
 
 // Fetch countries data from AWS S3 JSON file
 export const fetchCountriesData = createAsyncThunk<
-    CountryData[],
+    CountryDataRow[],
     void,
     { rejectValue: string }
 >('countryView/fetchCountriesData', async (_, { rejectWithValue }) => {
@@ -19,7 +19,7 @@ export const fetchCountriesData = createAsyncThunk<
         if (keys.length === 0) throw new Error('Wrong data format');
         const latestKey = keys[0];
 
-        const countriesData = jsonResponse[latestKey] as CountryData[];
+        const countriesData = jsonResponse[latestKey] as CountryDataRow[];
         return countriesData;
     } catch (err: any) {
         if (err.response.message) return rejectWithValue(err.response.message);

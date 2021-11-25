@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchCountriesData } from './thunks';
-import { CountryData } from 'models/CountryData';
+import { CountryDataRow } from 'models/CountryViewModels';
 
 interface CountryViewState {
     isLoading: boolean;
     error: string | undefined;
-    countriesData: CountryData[];
+    countriesData: CountryDataRow[];
     mapLoaded: boolean;
 }
 

@@ -1,4 +1,4 @@
-export enum CasesNumberColors {
+export enum CountryViewColors {
     '10K' = 'rgba(154, 215, 238, 1)',
     '100K' = 'rgba(123, 207, 242, 1)',
     '500K' = 'rgba(107, 200, 238, 1)',

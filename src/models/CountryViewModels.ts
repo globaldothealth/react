@@ -1,4 +1,4 @@
-export interface CountryData {
+export interface CountryDataRow {
     _id: string;
     casecount: number;
     jhu: number;
