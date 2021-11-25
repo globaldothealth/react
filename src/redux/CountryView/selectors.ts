@@ -5,3 +5,5 @@ export const selectIsLoading = (state: RootState) =>
 export const selectError = (state: RootState) => state.countryView.error;
 export const selectCountriesData = (state: RootState) =>
     state.countryView.countriesData;
+export const selectMapLoaded = (state: RootState) =>
+    state.countryView.mapLoaded;

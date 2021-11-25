@@ -22,7 +22,14 @@ export const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export const MapContainer = styled.div`
+interface MapContainerProps {
+    isLoading: boolean;
+}
+
+export const MapContainer = styled.div<MapContainerProps>`
     width: 100vw;
     height: 100vh;
+    transition: opacity 0.5s ease-in-out;
+
+    opacity: ${(props) => (props.isLoading ? '0' : '1')};
 `;
