@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import { useRef, useEffect } from 'react';
 import { useMapboxMap } from 'hooks/useMapboxMap';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -6,9 +7,11 @@ import { fetchCountriesData } from 'redux/CountryView/thunks';
 import { setMapLoaded } from 'redux/CountryView/slice';
 import countryLookupTable from 'data/admin0-lookup-table.json';
 import { CountryViewColors } from 'models/Colors';
-import { MapSourceDataEvent, EventData } from 'mapbox-gl';
+import mapboxgl, { MapSourceDataEvent, EventData } from 'mapbox-gl';
 import Legend from 'components/Legend';
 import { LegendRow } from 'models/LegendRow';
+import { parseSearchQuery } from 'utils/helperFunctions';
+import MapPopup from 'components/MapPopup';
 
 import { MapContainer } from 'theme/globalStyles';
 
@@ -23,6 +26,7 @@ const dataLayers: LegendRow[] = [
 
 const CountryView: React.FC = () => {
     const mapboxAccessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || '';
+    const dataPortalUrl = process.env.REACT_APP_DATA_PORTAL_URL;
 
     const dispatch = useAppDispatch();
     const isLoading = useAppSelector(countryViewSelectors.selectIsLoading);
@@ -88,6 +92,9 @@ const CountryView: React.FC = () => {
                     },
                     {
                         caseCount: countryRow.casecount,
+                        name: countryRow._id,
+                        lat: countryRow.lat,
+                        long: countryRow.long,
                     },
                 );
             }
@@ -131,6 +138,52 @@ const CountryView: React.FC = () => {
             },
             'waterway-label',
         );
+
+        // Add click listener and show popups
+        mapRef.on('click', 'countries-join', (e) => {
+            if (
+                !e.features ||
+                !e.features[0].properties ||
+                !e.features[0].state.name
+            )
+                return;
+
+            const caseCount = e.features[0].state.caseCount || 0;
+            const countryName = e.features[0].state.name;
+
+            const lat = e.features[0].state.lat;
+            const lng = e.features[0].state.long;
+            const coordinates: mapboxgl.LngLatLike = { lng, lat };
+
+            const searchQuery = `cases?country=${parseSearchQuery(
+                countryName,
+            )}`;
+            const url = `${dataPortalUrl}/${searchQuery}`;
+
+            const popupContent = (
+                <p>
+                    {caseCount.toLocaleString()} line list case
+                    {caseCount > 1 ? 's' : ''}
+                </p>
+            );
+
+            // This has to be done this way in order to allow for React components as a content of the popup
+            const popupElement = document.createElement('div');
+            ReactDOM.render(
+                <MapPopup
+                    title={countryName}
+                    content={popupContent}
+                    buttonText="Explore Country Data"
+                    buttonUrl={url}
+                />,
+                popupElement,
+            );
+
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setDOMContent(popupElement)
+                .addTo(mapRef);
+        });
     }, [isLoading, mapLoaded]);
 
     return (
