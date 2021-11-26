@@ -1,11 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 
 import countryViewReducer from './CountryView/slice';
 
+export const rootReducer = combineReducers({
+    countryView: countryViewReducer,
+});
+
 export const store = configureStore({
-    reducer: {
-        countryView: countryViewReducer,
-    },
+    reducer: rootReducer,
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

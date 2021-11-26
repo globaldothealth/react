@@ -139,6 +139,16 @@ const CountryView: React.FC = () => {
             'waterway-label',
         );
 
+        // Change the mouse cursor to pointer when hovering above this layer
+        mapRef.on('mouseenter', 'countries-join', () => {
+            mapRef.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back when it leaves.
+        mapRef.on('mouseleave', 'countries-join', () => {
+            mapRef.getCanvas().style.cursor = '';
+        });
+
         // Add click listener and show popups
         mapRef.on('click', 'countries-join', (e) => {
             if (
