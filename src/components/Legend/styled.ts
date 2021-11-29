@@ -1,6 +1,6 @@
-import styled from 'styled-components';
+import { styled } from '@mui/system';
 
-export const LegendContainer = styled.div`
+export const LegendContainer = styled('div')`
     position: absolute;
     top: 10rem;
     right: 1rem;
@@ -13,13 +13,13 @@ export const LegendContainer = styled.div`
     color: #333;
 `;
 
-export const Title = styled.p`
-    font-size: 1.1rem;
+export const Title = styled('p')`
+    font-size: 1.4rem;
     font-weight: bold;
     margin-bottom: 1rem;
 `;
 
-export const Row = styled.div`
+export const Row = styled('div')`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -33,7 +33,7 @@ interface ColorSampleProps {
     color: string;
 }
 
-export const ColorSample = styled.div<ColorSampleProps>`
+export const ColorSample = styled('div')<ColorSampleProps>`
     width: 1.4rem;
     height: 1.4rem;
     border: 1px solid #ccc;
@@ -42,6 +42,6 @@ export const ColorSample = styled.div<ColorSampleProps>`
     margin-bottom: 0.3rem;
 `;
 
-export const Label = styled.p`
-    font-size: 1rem;
+export const Label = styled('p')`
+    font-size: 1.4rem;
 `;

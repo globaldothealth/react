@@ -1,11 +1,13 @@
-// import { useState } from 'react';
 import { styled } from '@mui/system';
 
-export const StyledSideBar = styled('aside')<{ sidebaropen: boolean }>`
+interface StyledSideBarProps {
+    $sidebarOpen: boolean;
+}
+
+export const StyledSideBar = styled('aside')<StyledSideBarProps>`
     backdrop-filter: blur(0.5rem);
     /* background-color: white; */
-    background-color: ${({ sidebaropen }) =>
-    sidebaropen === true ? 'red' : 'blue'};
+    background-color: ${(props) => (props.$sidebarOpen ? 'red' : 'blue')};
     border-radius: 1ex;
     bottom: 25%;
     box-shadow: 0 10px 30px 1px rgb(0 0 0 / 10%);

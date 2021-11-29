@@ -2,13 +2,15 @@ import { styled } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import { AppBar } from '@mui/material';
 
-
 export const AppBarStyle = styled(AppBar)(({ theme }) => ({
+    position: 'fixed',
+    top: 0,
     backgroundColor: theme.palette.background.default,
     boxShadow: 'none',
+    zIndex: 999,
     a: {
-        textDecoration: 'none'
-    }
+        textDecoration: 'none',
+    },
 }));
 
 export const NavBar = styled('nav')(({ theme }) => ({
@@ -20,7 +22,7 @@ export const NavBar = styled('nav')(({ theme }) => ({
             color: theme.primary.main,
         },
         '&.activated': {
-            borderBottom: '4px solid #0094e2'
+            borderBottom: '4px solid #0094e2',
         },
     },
 }));

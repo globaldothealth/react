@@ -2,21 +2,49 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import App from 'components/App';
 import reportWebVitals from 'reportWebVitals';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import { GlobalStyle } from 'theme/globalStyles';
 import { store } from 'redux/store';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import { theme } from 'theme/theme';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+declare module '@mui/material/styles' {
+    interface Theme {
+        primary: {
+            main: string;
+        };
+    }
+
+    // allow configuration using `createTheme`
+    interface ThemeOptions {
+        primary?: any;
+    }
+
+    interface TypographyVariants {
+        navbarlink: React.CSSProperties;
+    }
+    interface TypographyVariantsOptions {
+        navbarlink?: React.CSSProperties;
+    }
+}
+// Update the Typography's variant prop options
+declare module '@mui/material/Typography' {
+    interface TypographyPropsVariantOverrides {
+        navbarlink: true;
+    }
+}
 
 ReactDOM.render(
-    <StrictMode>        
+    <StrictMode>
         <Provider store={store}>
-        <Router>
-        <GlobalStyle />
-            <Reset />
-            <Normalize />        
-            <App />
-            <BrowserRouter />
+            <ThemeProvider theme={theme}>
+                <Router>
+                    <GlobalStyle />
+                    <App />
+                </Router>
+            </ThemeProvider>
         </Provider>
     </StrictMode>,
     document.getElementById('root'),

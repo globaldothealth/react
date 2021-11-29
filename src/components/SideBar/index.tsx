@@ -1,21 +1,17 @@
 import { useState } from 'react';
-import { StyledSideBar } from './SideBarStyle';
+import { StyledSideBar } from './styled';
 
 const SideBar = () => {
     const [openSidebar, setOpenSidebar] = useState(true);
 
-    type ClickHandler = () => (e: React.MouseEvent) => void;
-
-    const handleOnClick: ClickHandler = () => () => {
+    const handleOnClick = () => {
         setOpenSidebar((value) => !value);
-
-        console.log(openSidebar);
     };
 
     return (
-        <StyledSideBar sidebaropen={openSidebar}>
+        <StyledSideBar $sidebarOpen={openSidebar}>
             <div id="sidebar-tab">
-                <span onClick={handleOnClick()} id="sidebar-tab-icon">
+                <span onClick={handleOnClick} id="sidebar-tab-icon">
                     ◀
                 </span>
             </div>
