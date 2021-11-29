@@ -51,9 +51,13 @@ const CountryView: React.FC = () => {
     // Setup map
     useEffect(() => {
         const mapRef = map.current;
-        if (!mapRef) return;
+        if (!mapRef || isLoading) return;
 
         mapRef.on('load', () => {
+            if (mapRef.getSource('countriesData')) {
+                mapRef.removeSource('countriesData');
+            }
+
             mapRef.addSource('countriesData', {
                 type: 'vector',
                 url: 'mapbox://mapbox.country-boundaries-v1',
@@ -64,23 +68,24 @@ const CountryView: React.FC = () => {
                 e: MapSourceDataEvent & EventData,
             ) => {
                 if (e.sourceID !== 'countriesData' && !e.isSourceLoaded) return;
+                displayCountriesOnMap();
                 dispatch(setMapLoaded(true));
                 mapRef.off('sourcedata', setAfterSourceLoaded);
             };
 
             if (mapRef.isSourceLoaded('countriesData')) {
+                displayCountriesOnMap();
                 dispatch(setMapLoaded(true));
             } else {
                 mapRef.on('sourcedata', setAfterSourceLoaded);
             }
         });
-    }, []);
+    }, [isLoading]);
 
     // Display countries data on the map
-    useEffect(() => {
-        if (isLoading || countriesData.length === 0 || !mapLoaded) return;
+    const displayCountriesOnMap = () => {
         const mapRef = map.current;
-        if (!mapRef) return;
+        if (countriesData.length === 0 || !mapRef) return;
 
         for (const countryRow of countriesData) {
             if (lookupTableData[countryRow.code]) {
@@ -194,7 +199,7 @@ const CountryView: React.FC = () => {
                 .setDOMContent(popupElement)
                 .addTo(mapRef);
         });
-    }, [isLoading, mapLoaded]);
+    };
 
     return (
         <>
