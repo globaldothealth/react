@@ -6,13 +6,17 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { GlobalStyle } from 'theme/globalStyles';
 import { store } from 'redux/store';
 import { Provider } from 'react-redux';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 ReactDOM.render(
-    <StrictMode>
-        <GlobalStyle />
-
+    <StrictMode>        
         <Provider store={store}>
+        <Router>
+        <GlobalStyle />
+            <Reset />
+            <Normalize />        
             <App />
+            <BrowserRouter />
         </Provider>
     </StrictMode>,
     document.getElementById('root'),
