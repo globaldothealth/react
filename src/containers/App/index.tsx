@@ -10,6 +10,7 @@ import { fetchCountriesData } from 'redux/App/thunks';
 import { selectIsLoading, selectError } from 'redux/App/selectors';
 import Loader from 'components/Loader';
 import ErrorAlert from 'components/ErrorAlert';
+import VariantsView from 'containers/VariantsView';
 
 import { ErrorContainer } from './styled';
 
@@ -39,6 +40,10 @@ const App = () => {
                     <Route path="/country" element={<CountryView />} />
                     <Route path="/region" element={<RegionalView />} />
                     <Route path="/coverage" element={<CoverageView />} />
+                    <Route
+                        path="/variant-reporting"
+                        element={<VariantsView />}
+                    />
                 </Routes>
             ) : (
                 <ErrorContainer>
