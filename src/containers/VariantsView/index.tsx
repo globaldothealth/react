@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useMapboxMap } from 'hooks/useMapboxMap';
 import { MapSourceDataEvent, EventData } from 'mapbox-gl';
 import { fetchVariantsData } from 'redux/VariantsView/thunks';
-import { selectVariantsData } from 'redux/VariantsView/selectors';
+import {
+    selectVariantsData,
+    selectChosenVariant,
+} from 'redux/VariantsView/selectors';
 import { selectIsLoading } from 'redux/App/selectors';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { sortData, sortStatesData } from 'utils/helperFunctions';
@@ -41,6 +44,7 @@ const VariantsView: React.FC = () => {
     const [mapLoaded, setMapLoaded] = useState(false);
     const variantsData = useAppSelector(selectVariantsData);
     const isLoading = useAppSelector(selectIsLoading);
+    const chosenVariant = useAppSelector(selectChosenVariant);
 
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useMapboxMap(mapboxAccessToken, mapContainer);
@@ -73,41 +77,45 @@ const VariantsView: React.FC = () => {
             // Add layers to the map
             layers.forEach((layer) => {
                 // Layer for countries
-                mapRef.addLayer(
-                    {
-                        id: layer.id,
-                        source: 'countriesData',
-                        'source-layer': 'country_boundaries',
-                        type: 'fill',
-                        paint: {
-                            'fill-color': layer.color,
-                            'fill-outline-color': layer.outline,
-                            'fill-opacity': 0,
-                            'fill-opacity-transition': {
-                                duration: ANIMATION_DURATION,
+                if (!mapRef.getLayer(layer.id)) {
+                    mapRef.addLayer(
+                        {
+                            id: layer.id,
+                            source: 'countriesData',
+                            'source-layer': 'country_boundaries',
+                            type: 'fill',
+                            paint: {
+                                'fill-color': layer.color,
+                                'fill-outline-color': layer.outline,
+                                'fill-opacity': 0,
+                                'fill-opacity-transition': {
+                                    duration: ANIMATION_DURATION,
+                                },
                             },
                         },
-                    },
-                    'country-label',
-                );
+                        'country-label',
+                    );
+                }
 
-                // Layer for US statesData
-                mapRef.addLayer(
-                    {
-                        id: `statesData-${layer.id}`,
-                        source: 'statesData',
-                        type: 'fill',
-                        paint: {
-                            'fill-color': layer.color,
-                            'fill-outline-color': layer.outline,
-                            'fill-opacity': 0,
-                            'fill-opacity-transition': {
-                                duration: ANIMATION_DURATION,
+                if (!mapRef.getLayer(`statesData-${layer.id}`)) {
+                    // Layer for US statesData
+                    mapRef.addLayer(
+                        {
+                            id: `statesData-${layer.id}`,
+                            source: 'statesData',
+                            type: 'fill',
+                            paint: {
+                                'fill-color': layer.color,
+                                'fill-outline-color': layer.outline,
+                                'fill-opacity': 0,
+                                'fill-opacity-transition': {
+                                    duration: ANIMATION_DURATION,
+                                },
                             },
                         },
-                    },
-                    'waterway-label',
-                );
+                        'waterway-label',
+                    );
+                }
 
                 // Change cursor to pointer when hovering above countries
                 mapRef.on('mouseenter', layer.id, () => {
@@ -151,15 +159,13 @@ const VariantsView: React.FC = () => {
     // Display countries and statesData on the map
     useEffect(() => {
         const mapRef = map.current;
-        const chosenVoc = 'total_b.1.1.7';
-
         if (!variantsData || !mapRef || !mapLoaded) return;
 
         const { countriesWithData, countriesWithoutData, countriesNotChecked } =
-            sortData(variantsData, chosenVoc);
+            sortData(variantsData, chosenVariant);
 
         const { statesWithData, statesWithoutData, statesNotChecked } =
-            sortStatesData(variantsData, chosenVoc);
+            sortStatesData(variantsData, chosenVariant);
 
         setLayersOpacity(0);
 
@@ -202,7 +208,7 @@ const VariantsView: React.FC = () => {
 
             setLayersOpacity(1);
         }, ANIMATION_DURATION);
-    }, [variantsData, mapLoaded]);
+    }, [variantsData, mapLoaded, chosenVariant]);
 
     const setLayersOpacity = (opacity: number) => {
         layers.forEach((layer) => {

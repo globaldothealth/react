@@ -86,10 +86,10 @@ interface MapContainerProps {
 
 export const MapContainer = styled.div<MapContainerProps>`
     position: absolute;
-    top: 64px;
+    top: 6.4rem;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 6.4rem);
     transition: opacity 0.5s ease-in-out;
 
     opacity: ${(props) => (props.isLoading ? '0' : '1')};
