@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchCountriesData } from './thunks';
+import { fetchVariantsData } from 'redux/VariantsView/thunks';
 import { CountryDataRow } from 'models/CountryData';
 
 interface AppState {
@@ -28,6 +29,21 @@ export const appSlice = createSlice({
             state.countriesData = payload;
         });
         builder.addCase(fetchCountriesData.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload
+                ? action.payload
+                : action.error.message;
+        });
+
+        // Variants view
+        builder.addCase(fetchVariantsData.pending, (state) => {
+            state.isLoading = true;
+            state.error = undefined;
+        });
+        builder.addCase(fetchVariantsData.fulfilled, (state) => {
+            state.isLoading = false;
+        });
+        builder.addCase(fetchVariantsData.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.payload
                 ? action.payload
