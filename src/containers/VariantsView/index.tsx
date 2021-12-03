@@ -4,10 +4,10 @@ import { useMapboxMap } from 'hooks/useMapboxMap';
 import { Popup, MapSourceDataEvent, EventData, LngLatLike } from 'mapbox-gl';
 import { fetchVariantsData } from 'redux/VariantsView/thunks';
 import {
+    selectIsLoading,
     selectVariantsData,
     selectChosenVariant,
 } from 'redux/VariantsView/selectors';
-import { selectIsLoading } from 'redux/App/selectors';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import {
     sortData,
@@ -348,7 +348,10 @@ const VariantsView: React.FC = () => {
 
     return (
         <>
-            <MapContainer ref={mapContainer} isLoading={isLoading} />
+            <MapContainer
+                ref={mapContainer}
+                isLoading={isLoading || !mapLoaded}
+            />
             <Legend
                 title="Variant Reporting"
                 legendRows={renderedLegendRows()}

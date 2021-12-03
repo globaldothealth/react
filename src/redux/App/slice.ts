@@ -35,16 +35,11 @@ export const appSlice = createSlice({
                 : action.error.message;
         });
 
-        // Variants view
+        // Variants view (error handling)
         builder.addCase(fetchVariantsData.pending, (state) => {
-            state.isLoading = true;
             state.error = undefined;
         });
-        builder.addCase(fetchVariantsData.fulfilled, (state) => {
-            state.isLoading = false;
-        });
         builder.addCase(fetchVariantsData.rejected, (state, action) => {
-            state.isLoading = false;
             state.error = action.payload
                 ? action.payload
                 : action.error.message;
