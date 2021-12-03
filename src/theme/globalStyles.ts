@@ -19,6 +19,10 @@ export const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  .mapboxgl-popup {
+    z-index: 999;
+  }
+
   @font-face {
     font-family: 'Mabry Pro';
     src: url("https://covid-19-aggregates.s3.amazonaws.com/fonts/mabry-regular-pro/mabry-regular-pro.ttf") format('truetype'),
