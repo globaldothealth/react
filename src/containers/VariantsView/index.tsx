@@ -18,7 +18,7 @@ import {
 } from 'utils/helperFunctions';
 import { VariantsFillColors, VariantsOutlineColors } from 'models/Colors';
 import MapPopup from 'components/MapPopup';
-import { VariantsDataRow } from 'models/VariantsDataRow';
+import { VariantsDataRow } from 'models/VariantsData';
 import Legend from 'components/Legend';
 
 import { MapContainer } from 'theme/globalStyles';

@@ -1,6 +1,6 @@
 import { parse, isAfter } from 'date-fns';
 import { CountryDataRow } from 'models/CountryData';
-import { VariantsDataRow, VariantsLabels } from 'models/VariantsDataRow';
+import { VariantsDataRow, VariantsLabels } from 'models/VariantsData';
 import { statesList, StatesData, DataStatus } from 'data/statesData';
 
 // Parses search query that takes user to Curator Portal

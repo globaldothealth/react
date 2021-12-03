@@ -93,3 +93,8 @@ export interface VariantsLabels extends Record<string, string> {
     'WHO label': string;
     'is VoI': string;
 }
+
+export enum VariantType {
+    Voi = 'voi',
+    Voc = 'voc',
+}

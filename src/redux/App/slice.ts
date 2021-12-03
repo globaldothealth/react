@@ -1,16 +1,18 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchCountriesData } from './thunks';
 import { fetchVariantsData } from 'redux/VariantsView/thunks';
 import { CountryDataRow } from 'models/CountryData';
 
 interface AppState {
     isLoading: boolean;
+    isMapLoading: boolean;
     error: string | undefined;
     countriesData: CountryDataRow[];
 }
 
 const initialState: AppState = {
     isLoading: false,
+    isMapLoading: false,
     error: undefined,
     countriesData: [],
 };
@@ -18,7 +20,11 @@ const initialState: AppState = {
 export const appSlice = createSlice({
     name: 'app',
     initialState,
-    reducers: {},
+    reducers: {
+        setIsMapLoading: (state, action: PayloadAction<boolean>) => {
+            state.isMapLoading = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(fetchCountriesData.pending, (state) => {
             state.isLoading = true;
@@ -46,5 +52,7 @@ export const appSlice = createSlice({
         });
     },
 });
+
+export const { setIsMapLoading } = appSlice.actions;
 
 export default appSlice.reducer;

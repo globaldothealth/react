@@ -1,23 +1,28 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { VariantsDataRow } from 'models/VariantsDataRow';
+import { VariantsDataRow, VariantType } from 'models/VariantsData';
 import { fetchVariantsData } from './thunks';
 
 interface VariantsViewState {
     isLoading: boolean;
     variantsData: VariantsDataRow[];
+    chosenVariantType: VariantType;
     chosenVariant: string;
 }
 
 const initialState: VariantsViewState = {
     isLoading: false,
     variantsData: [],
-    chosenVariant: 'total_b.1.1.7',
+    chosenVariantType: VariantType.Voc,
+    chosenVariant: '',
 };
 
 const variantsViewSlice = createSlice({
     name: 'variantsView',
     initialState,
     reducers: {
+        setChosenVariantType: (state, action: PayloadAction<VariantType>) => {
+            state.chosenVariantType = action.payload;
+        },
         setChosenVariant: (state, action: PayloadAction<string>) => {
             state.chosenVariant = action.payload;
         },
@@ -36,6 +41,7 @@ const variantsViewSlice = createSlice({
     },
 });
 
-export const { setChosenVariant } = variantsViewSlice.actions;
+export const { setChosenVariant, setChosenVariantType } =
+    variantsViewSlice.actions;
 
 export default variantsViewSlice.reducer;

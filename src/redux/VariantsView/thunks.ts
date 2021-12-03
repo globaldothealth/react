@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { VariantsDataRow } from 'models/VariantsDataRow';
+import { VariantsDataRow } from 'models/VariantsData';
 
 export const fetchVariantsData = createAsyncThunk<
     VariantsDataRow[],
