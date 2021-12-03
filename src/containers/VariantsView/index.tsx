@@ -1,6 +1,7 @@
+import ReactDOM from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { useMapboxMap } from 'hooks/useMapboxMap';
-import { MapSourceDataEvent, EventData } from 'mapbox-gl';
+import { Popup, MapSourceDataEvent, EventData, LngLatLike } from 'mapbox-gl';
 import { fetchVariantsData } from 'redux/VariantsView/thunks';
 import {
     selectVariantsData,
@@ -8,10 +9,21 @@ import {
 } from 'redux/VariantsView/selectors';
 import { selectIsLoading } from 'redux/App/selectors';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { sortData, sortStatesData } from 'utils/helperFunctions';
+import {
+    sortData,
+    sortStatesData,
+    getDetailedData,
+    getMostRecentCountryData,
+    getMostRecentStatesData,
+} from 'utils/helperFunctions';
 import { VariantsFillColors, VariantsOutlineColors } from 'models/Colors';
+import MapPopup from 'components/MapPopup';
+import { VariantsDataRow } from 'models/VariantsDataRow';
+import Legend from 'components/Legend';
 
 import { MapContainer } from 'theme/globalStyles';
+import { PopupContentText } from './styled';
+import { LegendRow } from 'models/LegendRow';
 
 // Layers to be displayed on map
 const layers = [
@@ -42,6 +54,18 @@ const VariantsView: React.FC = () => {
     const mapboxAccessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || '';
 
     const [mapLoaded, setMapLoaded] = useState(false);
+    const [variantsCountryData, setVariantsCountryData] = useState<
+        VariantsDataRow[]
+    >([]);
+    const [variantsStateData, setVariantsStateData] = useState<
+        VariantsDataRow[]
+    >([]);
+    const [popupState, setPopupState] = useState<{
+        stateResolution: boolean;
+        lngLat: LngLatLike;
+        location: string;
+    }>();
+
     const variantsData = useAppSelector(selectVariantsData);
     const isLoading = useAppSelector(selectIsLoading);
     const chosenVariant = useAppSelector(selectChosenVariant);
@@ -54,11 +78,22 @@ const VariantsView: React.FC = () => {
         dispatch(fetchVariantsData());
     }, []);
 
+    // Prepare data
+    useEffect(() => {
+        if (!variantsData || variantsData.length === 0) return;
+
+        const mostRecentCountryData = getMostRecentCountryData(variantsData);
+        const mostRecentVocStateData = getMostRecentStatesData(variantsData);
+
+        setVariantsCountryData(mostRecentCountryData);
+        setVariantsStateData(mostRecentVocStateData);
+    }, [variantsData]);
+
     // Setup map
     useEffect(() => {
         const mapRef = map.current;
-        if (!mapRef || isLoading || !variantsData || variantsData.length === 0)
-            return;
+
+        if (!mapRef || isLoading) return;
 
         mapRef.on('load', () => {
             if (!mapRef.getSource('countriesData')) {
@@ -117,6 +152,46 @@ const VariantsView: React.FC = () => {
                     );
                 }
 
+                // Display a popup with selected data details
+                mapRef.on('click', layer.id, (e) => {
+                    const { lngLat, features } = e;
+                    if (
+                        !features ||
+                        features.length === 0 ||
+                        !features[0].properties
+                    )
+                        return;
+
+                    const locationCode = features[0].properties
+                        .iso_3166_1_alpha_3 as string;
+
+                    setPopupState({
+                        stateResolution: false,
+                        lngLat,
+                        location: locationCode,
+                    });
+                });
+
+                // Display a popup with selected data details when clicking on individual state
+                mapRef.on('click', `statesData-${layer.id}`, (e) => {
+                    const { lngLat, features } = e;
+                    if (
+                        !features ||
+                        features.length === 0 ||
+                        !features[0].properties
+                    )
+                        return;
+
+                    const locationCode = features[0].properties
+                        .STATE_NAME as string;
+
+                    setPopupState({
+                        stateResolution: true,
+                        lngLat,
+                        location: locationCode,
+                    });
+                });
+
                 // Change cursor to pointer when hovering above countries
                 mapRef.on('mouseenter', layer.id, () => {
                     mapRef.getCanvas().style.cursor = 'pointer';
@@ -154,18 +229,19 @@ const VariantsView: React.FC = () => {
                 mapRef.on('sourcedata', setAfterSourceLoaded);
             }
         });
-    }, [isLoading, variantsData]);
+    }, [isLoading]);
 
     // Display countries and statesData on the map
     useEffect(() => {
         const mapRef = map.current;
-        if (!variantsData || !mapRef || !mapLoaded) return;
+        if (!variantsCountryData || !variantsStateData || !mapRef || !mapLoaded)
+            return;
 
         const { countriesWithData, countriesWithoutData, countriesNotChecked } =
-            sortData(variantsData, chosenVariant);
+            sortData(variantsCountryData, chosenVariant);
 
         const { statesWithData, statesWithoutData, statesNotChecked } =
-            sortStatesData(variantsData, chosenVariant);
+            sortStatesData(variantsStateData, chosenVariant);
 
         setLayersOpacity(0);
 
@@ -208,7 +284,50 @@ const VariantsView: React.FC = () => {
 
             setLayersOpacity(1);
         }, ANIMATION_DURATION);
-    }, [variantsData, mapLoaded, chosenVariant]);
+    }, [variantsCountryData, variantsStateData, mapLoaded, chosenVariant]);
+
+    // Display popups on the map
+    useEffect(() => {
+        const mapRef = map.current;
+        if (!popupState || !mapRef) return;
+
+        const { stateResolution, lngLat, location } = popupState;
+
+        // Get source url and date checked based on clicked location
+        const { sourceUrl, countryName, dateChecked, breakthrough } =
+            getDetailedData(
+                stateResolution ? variantsStateData : variantsCountryData,
+                location,
+            );
+
+        const popupContent = (
+            <>
+                <PopupContentText>
+                    <strong>Date checked:</strong> {dateChecked}
+                </PopupContentText>
+                <PopupContentText>
+                    <strong>
+                        Breakthrough infections by variant reported:{' '}
+                    </strong>
+                    {breakthrough}
+                </PopupContentText>
+            </>
+        );
+
+        // This has to be done this way in order to allow for React components as a content of the popup
+        const popupElement = document.createElement('div');
+        ReactDOM.render(
+            <MapPopup
+                title={countryName}
+                content={popupContent}
+                buttonText={sourceUrl ? 'Go To Public Source' : ''}
+                buttonUrl={sourceUrl}
+            />,
+            popupElement,
+        );
+
+        new Popup().setLngLat(lngLat).setDOMContent(popupElement).addTo(mapRef);
+    }, [popupState]);
 
     const setLayersOpacity = (opacity: number) => {
         layers.forEach((layer) => {
@@ -221,8 +340,20 @@ const VariantsView: React.FC = () => {
         });
     };
 
+    const renderedLegendRows = (): LegendRow[] => {
+        return layers.map((layer) => {
+            return { label: layer.label, color: layer.color };
+        });
+    };
+
     return (
-        <MapContainer ref={mapContainer} isLoading={isLoading || !mapLoaded} />
+        <>
+            <MapContainer ref={mapContainer} isLoading={isLoading} />
+            <Legend
+                title="Variant Reporting"
+                legendRows={renderedLegendRows()}
+            />
+        </>
     );
 };
 

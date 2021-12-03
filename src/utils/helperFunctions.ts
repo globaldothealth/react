@@ -140,21 +140,19 @@ export const sortData = (
     countriesWithoutData: string[];
     countriesNotChecked: string[];
 } => {
-    const recentData = getMostRecentCountryData(data);
-
-    let filteredCountries = recentData.filter(
+    let filteredCountries = data.filter(
         (dataRow) => dataRow[variantName] === DataStatus.CheckedHasData,
     );
     const countriesWithData = filteredCountries.map((country) => country.code);
 
-    filteredCountries = recentData.filter(
+    filteredCountries = data.filter(
         (dataRow) => dataRow[variantName] === DataStatus.CheckedNoData,
     );
     const countriesWithoutData = filteredCountries.map(
         (country) => country.code,
     );
 
-    filteredCountries = recentData.filter(
+    filteredCountries = data.filter(
         (dataRow) => dataRow[variantName] === DataStatus.NotChecked,
     );
     const countriesNotChecked = filteredCountries.map(
@@ -217,11 +215,9 @@ export const sortStatesData = (
     statesWithoutData: string[];
     statesNotChecked: string[];
 } => {
-    const recentData = getMostRecentStatesData(data);
-
     // Prepare states data in correct format for Mapbox data join
     const statesData: StatesData[] = [];
-    recentData.forEach((row) => {
+    data.forEach((row) => {
         const state = statesList.find((state) => state.name === row.location);
         const stateId = (state && state.stateId) || '00';
 
