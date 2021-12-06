@@ -56,9 +56,9 @@ export const SideBarHeader = styled('div')(({ theme }) => ({
     height: 'auto',
     position: 'relative',
     h1: {
-        borderRadius: '4px',
+        borderRadius: '.4rem',
         display: 'inline-block',
-        fontSize: '12px',
+        fontSize: '1.2rem',
         margin: 0,
         padding: '0.7ex 2ex',
         background: theme.primary.main,
@@ -113,7 +113,7 @@ export const LocationList = styled('div')`
 export const LocationListItem = styled('div')<{ $barWidth: number }>(
     ({ theme, $barWidth }) => ({
         width: '100%',
-        margin: '1px auto',
+        margin: '.1rem auto',
         button: {
             color: '#454545',
             backgroundColor: '#fff',
