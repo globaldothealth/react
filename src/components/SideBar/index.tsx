@@ -21,52 +21,21 @@ const SideBar = () => {
         setOpenSidebar((value) => !value);
     };
 
-    const countriesData = useAppSelector(selectCountriesData);
-
-    console.log(countriesData);
-
-    interface ICountries {
-        widthBar: number;
-        code: string;
-        _id: string;
-        casecount: number;
-    }
-
-    // const countriesList: ICountries[] = [
-    //     {
-    //         countryCode: 'US',
-    //         countryName: 'United States',
-    //         widthBar: 49,
-    //         number: 30261846,
-    //     },
-    //     {
-    //         countryCode: 'DE',
-    //         countryName: 'Germany',
-    //         widthBar: 60,
-    //         number: 5077124,
-    //     },
-    //     {
-    //         countryCode: 'IT',
-    //         countryName: 'Italy',
-    //         widthBar: 36,
-    //         number: 5077124,
-    //     },
-    //     {
-    //         countryCode: 'ES',
-    //         countryName: 'Spain',
-    //         widthBar: 3,
-    //         number: 5077124,
-    //     },
-    // ];
+    const countriesData = useAppSelector(selectCountriesData)
+        .filter((item) => item._id != null && item.code !== 'ZZ')
+        .sort((a, b) => (a._id > b._id ? 1 : -1));
 
     const handleOnCountryClick = (row: React.MouseEvent<HTMLElement>) => {
         console.log(row);
     };
 
+    console.log(countriesData);
+
     const Countries = () => (
         <>
             {countriesData.map((row) => {
                 const { code, _id, casecount } = row;
+
                 return (
                     <LocationListItem key={code} $barWidth={'widthBar'}>
                         <button

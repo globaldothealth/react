@@ -136,6 +136,7 @@ export const LocationListItem = styled('div')<{ $barWidth: number }>(
                 alignItems: 'center',
                 fontWeight: 'normal',
                 color: '#999',
+                marginRight: '10px',
             },
         },
         '& .country-cases-bar': {
