@@ -19,7 +19,13 @@ import { VariantType, VariantsLabels } from 'models/VariantsData';
 import useGoogleSheets from 'use-google-sheets';
 import { parseVariantData } from 'utils/helperFunctions';
 
-import { SelectTitle, StyledFormLabel, SelectContainer } from './styled';
+import {
+    SelectTitle,
+    StyledFormLabel,
+    SelectContainer,
+    SelectTitleSkeleton,
+    SelectSkeleton,
+} from './styled';
 
 const VariantsContent: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -122,16 +128,30 @@ const VariantsContent: React.FC = () => {
                 </RadioGroup>
             </FormControl>
 
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
-                <SelectContainer>
-                    <SelectTitle>
-                        Choose{' '}
-                        {chosenVariantType === VariantType.Voc
+            <SelectContainer>
+                <SelectTitle>
+                    {loading ? (
+                        <SelectTitleSkeleton
+                            variant="text"
+                            animation="pulse"
+                            data-cy="loading-skeleton"
+                        />
+                    ) : (
+                        `Choose
+                    ${
+                        chosenVariantType === VariantType.Voc
                             ? 'Variant of Concern'
-                            : 'Variant of Interest'}
-                    </SelectTitle>
+                            : 'Variant of Interest'
+                    }`
+                    )}
+                </SelectTitle>
+                {loading ? (
+                    <SelectSkeleton
+                        animation="pulse"
+                        variant="rectangular"
+                        data-cy="loading-skeleton"
+                    />
+                ) : (
                     <FormControl fullWidth>
                         <InputLabel id="variant-select-label">
                             Variant
@@ -148,8 +168,8 @@ const VariantsContent: React.FC = () => {
                                 : renderedVois()}
                         </Select>
                     </FormControl>
-                </SelectContainer>
-            )}
+                )}
+            </SelectContainer>
         </>
     );
 };
