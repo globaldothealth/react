@@ -11,6 +11,8 @@ import {
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
+import { useAppSelector } from 'redux/hooks';
+import { selectCountriesData } from 'redux/App/selectors';
 
 const SideBar = () => {
     const [openSidebar, setOpenSidebar] = useState(true);
@@ -19,39 +21,43 @@ const SideBar = () => {
         setOpenSidebar((value) => !value);
     };
 
+    const countriesData = useAppSelector(selectCountriesData);
+
+    console.log(countriesData);
+
     interface ICountries {
         widthBar: number;
-        countryCode: string;
-        countryName: string;
-        number: number;
+        code: string;
+        _id: string;
+        casecount: number;
     }
 
-    const countriesList: ICountries[] = [
-        {
-            countryCode: 'US',
-            countryName: 'United States',
-            widthBar: 49,
-            number: 30261846,
-        },
-        {
-            countryCode: 'DE',
-            countryName: 'Germany',
-            widthBar: 60,
-            number: 5077124,
-        },
-        {
-            countryCode: 'IT',
-            countryName: 'Italy',
-            widthBar: 36,
-            number: 5077124,
-        },
-        {
-            countryCode: 'ES',
-            countryName: 'Spain',
-            widthBar: 3,
-            number: 5077124,
-        },
-    ];
+    // const countriesList: ICountries[] = [
+    //     {
+    //         countryCode: 'US',
+    //         countryName: 'United States',
+    //         widthBar: 49,
+    //         number: 30261846,
+    //     },
+    //     {
+    //         countryCode: 'DE',
+    //         countryName: 'Germany',
+    //         widthBar: 60,
+    //         number: 5077124,
+    //     },
+    //     {
+    //         countryCode: 'IT',
+    //         countryName: 'Italy',
+    //         widthBar: 36,
+    //         number: 5077124,
+    //     },
+    //     {
+    //         countryCode: 'ES',
+    //         countryName: 'Spain',
+    //         widthBar: 3,
+    //         number: 5077124,
+    //     },
+    // ];
 
     const handleOnCountryClick = (row: React.MouseEvent<HTMLElement>) => {
         console.log(row);
@@ -59,17 +65,17 @@ const SideBar = () => {
 
     const Countries = () => (
         <>
-            {countriesList.map((row) => {
-                const { widthBar, countryCode, countryName, number } = row;
+            {countriesData.map((row) => {
+                const { code, _id, casecount } = row;
                 return (
-                    <LocationListItem key={countryCode} $barWidth={widthBar}>
+                    <LocationListItem key={code} $barWidth={'widthBar'}>
                         <button
-                            country={countryCode}
+                            country={code}
                             onClick={(row) => handleOnCountryClick(row)}
                         >
-                            <span className="label">{countryName}</span>
+                            <span className="label">{_id}</span>
                             <span className="num">
-                                {number.toLocaleString()}
+                                {casecount.toLocaleString()}
                             </span>
                         </button>
                         <div className="country-cases-bar"></div>
@@ -102,9 +108,9 @@ const SideBar = () => {
             <SearchBar className="searchbar">
                 <Autocomplete
                     id="country-select"
-                    options={countriesList}
+                    options={countriesData}
                     autoHighlight
-                    getOptionLabel={(option) => option.countryName}
+                    getOptionLabel={(option) => option._id}
                     renderOption={(props, option) => (
                         <Box
                             component="li"
@@ -114,11 +120,11 @@ const SideBar = () => {
                             <FlagIcon
                                 loading="lazy"
                                 width="20"
-                                src={`https://flagcdn.com/w20/${option.countryCode.toLowerCase()}.png`}
-                                srcSet={`https://flagcdn.com/w40/${option.countryCode.toLowerCase()}.png 2x`}
+                                src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+                                srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
                                 alt=""
                             />
-                            {option.countryName} ({option.countryCode})
+                            {option._id} ({option.code})
                         </Box>
                     )}
                     renderInput={(params) => (

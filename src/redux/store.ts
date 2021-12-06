@@ -3,7 +3,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import appReducer from './App/slice';
 
 export const rootReducer = combineReducers({
-    app: appReducer,
+    app: appReducer
 });
 
 export const store = configureStore({
