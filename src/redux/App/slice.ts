@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { fetchCountriesData } from './thunks';
+import { fetchCountriesData, fetchTotalCases } from './thunks';
 import { fetchVariantsData } from 'redux/VariantsView/thunks';
 import { CountryDataRow } from 'models/CountryData';
 
@@ -8,6 +8,7 @@ interface AppState {
     isMapLoading: boolean;
     error: string | undefined;
     countriesData: CountryDataRow[];
+    totalNumberOfCases: number;
 }
 
 const initialState: AppState = {
@@ -15,6 +16,7 @@ const initialState: AppState = {
     isMapLoading: false,
     error: undefined,
     countriesData: [],
+    totalNumberOfCases: 0,
 };
 
 export const appSlice = createSlice({
@@ -46,6 +48,24 @@ export const appSlice = createSlice({
             state.error = undefined;
         });
         builder.addCase(fetchVariantsData.rejected, (state, action) => {
+            state.error = action.payload
+                ? action.payload
+                : action.error.message;
+        });
+
+        // Total Cases Count
+        builder.addCase(fetchTotalCases.pending, (state) => {
+            state.isLoading = true;
+            state.error = undefined;
+        });
+        builder.addCase(fetchTotalCases.fulfilled, (state, { payload }) => {
+            state.isLoading = false;
+            state.totalNumberOfCases = payload.total;
+
+            console.log('payload in slice', payload);
+        });
+        builder.addCase(fetchTotalCases.rejected, (state, action) => {
+            state.isLoading = false;
             state.error = action.payload
                 ? action.payload
                 : action.error.message;

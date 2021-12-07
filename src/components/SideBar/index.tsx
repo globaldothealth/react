@@ -9,7 +9,7 @@ import {
     SideBarHeader,
     StyledSideBar,
 } from './styled';
-import { selectCountriesData } from 'redux/App/selectors';
+import { selectCountriesData, selectTotalCases } from 'redux/App/selectors';
 import { useAppSelector } from 'redux/hooks';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
@@ -21,6 +21,11 @@ const SideBar = () => {
 
     const [openSidebar, setOpenSidebar] = useState(true);
     const [isVariantsView, setIsVariantsView] = useState(false);
+
+    const totalCasesCount = useAppSelector(selectTotalCases);
+
+        // const amountOfCountries = countriesData.length;
+        console.log('totalCasesCount', totalCasesCount);
 
     // Sidebar has other content in VariantsView
     useEffect(() => {
@@ -39,7 +44,6 @@ const SideBar = () => {
         console.log(row);
     };
 
-    console.log(countriesData);
 
     const Countries = () => (
         <>
