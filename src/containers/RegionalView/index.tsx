@@ -83,12 +83,17 @@ export const RegionalView: React.FC = () => {
         }
 
         if (!mapRef.getLayer('adminBoundaries')) {
-            // mapRef.addLayer({
-            //     id: 'adminBoundaries',
-            //     type: 'line',
-            //     source: 'adminSource',
-            //     'source-layer': 'admin',
-            // });
+            mapRef.addLayer({
+                id: 'adminBoundaries',
+                type: 'line',
+                source: 'adminSource',
+                'source-layer': 'admin',
+                paint: {
+                    'line-color': 'rgba(0, 131, 191, 1)',
+                    'line-opacity': 0.35,
+                },
+                minzoom: 6,
+            });
         }
 
         if (!mapRef.getLayer('points')) {
