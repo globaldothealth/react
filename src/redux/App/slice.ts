@@ -61,8 +61,6 @@ export const appSlice = createSlice({
         builder.addCase(fetchTotalCases.fulfilled, (state, { payload }) => {
             state.isLoading = false;
             state.totalNumberOfCases = payload.total;
-
-            console.log('payload in slice', payload);
         });
         builder.addCase(fetchTotalCases.rejected, (state, action) => {
             state.isLoading = false;

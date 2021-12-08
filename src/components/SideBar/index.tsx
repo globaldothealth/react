@@ -1,5 +1,11 @@
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import VariantsContent from './VariantsContent';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { selectCountriesData, selectTotalCases } from 'redux/App/selectors';
+import { useAppSelector } from 'redux/hooks';
 import {
     FlagIcon,
     LatestGlobal,
@@ -9,49 +15,43 @@ import {
     SideBarHeader,
     StyledSideBar,
 } from './styled';
-import { selectCountriesData, selectTotalCases } from 'redux/App/selectors';
-import { useAppSelector } from 'redux/hooks';
-import Autocomplete from '@mui/material/Autocomplete';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import VariantsContent from './VariantsContent';
 
 const SideBar = () => {
-    const location = useLocation();
-
     const [openSidebar, setOpenSidebar] = useState(true);
     const [isVariantsView, setIsVariantsView] = useState(false);
 
-    const totalCasesCount = useAppSelector(selectTotalCases);
+    const location = useLocation();
 
-        // const amountOfCountries = countriesData.length;
-        console.log('totalCasesCount', totalCasesCount);
+    const totalCasesCount = useAppSelector(selectTotalCases);
 
     // Sidebar has other content in VariantsView
     useEffect(() => {
         setIsVariantsView(location.pathname === '/variant-reporting');
     }, [location]);
 
-    const handleOnClick = () => {
-        setOpenSidebar((value) => !value);
-    };
-
     const countriesData = useAppSelector(selectCountriesData)
         .filter((item) => item._id != null && item.code !== 'ZZ')
         .sort((a, b) => (a.casecount < b.casecount ? 1 : -1));
 
-    const handleOnCountryClick = (row: React.MouseEvent<HTMLElement>) => {
-        console.log(row);
+    const handleOnClick = () => {
+        setOpenSidebar((value) => !value);
     };
 
+    const handleOnCountryClick = (row: React.MouseEvent<HTMLElement>) => {
+        console.log(row); // TODO: logic after clicking a country name
+    };
 
     const Countries = () => (
         <>
             {countriesData.map((row) => {
                 const { code, _id, casecount } = row;
-
+                const countryCasesCountPercentage =
+                    (casecount / totalCasesCount) * 100;
                 return (
-                    <LocationListItem key={code} $barWidth={row.jhu}>
+                    <LocationListItem
+                        key={code}
+                        $barWidth={countryCasesCountPercentage}
+                    >
                         <button
                             country={code}
                             onClick={(row) => handleOnCountryClick(row)}

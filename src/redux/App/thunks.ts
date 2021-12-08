@@ -47,14 +47,7 @@ export const fetchTotalCases = createAsyncThunk<
 
         const jsonResponse = await response.json();
 
-        console.log(jsonResponse);
-
-        const keys = Object.keys(jsonResponse);
-        if (keys.length === 0) throw new Error('Wrong data format');
-        const latestKey = keys[0];
-
-        const totalCases = jsonResponse[latestKey] as TotalCasesValues;
-        return totalCases;
+        return jsonResponse;
     } catch (err: any) {
         if (err.response) return rejectWithValue(err.response.message);
 
