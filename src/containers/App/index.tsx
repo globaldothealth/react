@@ -26,8 +26,6 @@ const App = () => {
         dispatch(fetchCountriesData());
     }, []);
 
-    console.log(process.env.REACT_APP_DATA_PORTAL_URL || '');
-
     return (
         <div className="App">
             {isLoading || (isVariantsViewLoading && <Loader />)}
