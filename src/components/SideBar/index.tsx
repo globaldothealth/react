@@ -56,9 +56,9 @@ const SideBar = () => {
 
     const handleAutocompleteCountrySelect = (
         event: SyntheticEvent<Element, Event>,
-        value: CountryDataRow,
+        value: CountryDataRow | null,
     ) => {
-        dispatch(setSelectedCountryInSidebar(value.code));
+        value !== null && dispatch(setSelectedCountryInSidebar(value.code));
     };
 
     const Countries = () => (
@@ -144,7 +144,7 @@ const SideBar = () => {
                             autoHighlight
                             disabled={totalCasesCountIsLoading}
                             getOptionLabel={(option) => option._id}
-                            onChange={(event, value: any) =>
+                            onChange={(event, value: CountryDataRow | null) =>
                                 handleAutocompleteCountrySelect(event, value)
                             }
                             renderOption={(props, option) => (
