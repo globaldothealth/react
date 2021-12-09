@@ -9,6 +9,7 @@ interface AppState {
     error: string | undefined;
     countriesData: CountryDataRow[];
     totalNumberOfCases: number;
+    selectedCountryInSideBar: string;
 }
 
 const initialState: AppState = {
@@ -17,6 +18,7 @@ const initialState: AppState = {
     error: undefined,
     countriesData: [],
     totalNumberOfCases: 0,
+    selectedCountryInSideBar: '',
 };
 
 export const appSlice = createSlice({
@@ -25,6 +27,9 @@ export const appSlice = createSlice({
     reducers: {
         setIsMapLoading: (state, action: PayloadAction<boolean>) => {
             state.isMapLoading = action.payload;
+        },
+        setSelectedCountryInSidebar: (state, action: PayloadAction<string>) => {
+            state.selectedCountryInSideBar = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -71,6 +76,7 @@ export const appSlice = createSlice({
     },
 });
 
-export const { setIsMapLoading } = appSlice.actions;
+export const { setIsMapLoading, setSelectedCountryInSidebar } =
+    appSlice.actions;
 
 export default appSlice.reducer;
