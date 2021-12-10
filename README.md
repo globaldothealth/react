@@ -4,14 +4,15 @@ This is a source code for the Global.health map
 
 **Main technologies and libraries used in this project**
 
-- React (Create React App)
-- Typescript
-- Reduxjs toolkit
-- Styled components
-- React Router
-- Mui
-- Cypress
-- Craco
+-   React (Create React App)
+-   Typescript
+-   Reduxjs toolkit
+-   Styled components
+-   React Router
+-   Mapbox
+-   Mui
+-   Cypress
+-   Craco
 
 ## Development
 
@@ -29,9 +30,5 @@ You can start the development server by running:
 
 There are Github actions setup in `/.github/workflows` directory. After pushing commits to either main or develop branch those actions perform automatic deployment to AWS S3. The application can be accessed under those urls:
 
-- Dev: http://dev-react-map.covid-19.global.health.s3-website.us-east-2.amazonaws.com/
-- Prod: `to be created`
-
-
-
-
+-   Dev: http://dev-react-map.covid-19.global.health.s3-website.us-east-2.amazonaws.com/
+-   Prod: `to be created`
