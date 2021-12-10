@@ -28,6 +28,8 @@ You can start the development server by running:
 
 ## Deployment
 
+Before making production deployments to main branch make sure to include `.env.production` file in project's dorectory containing all the production keys and env variables.
+
 There are Github actions setup in `/.github/workflows` directory. After pushing commits to either main or develop branch those actions perform automatic deployment to AWS S3. The application can be accessed under those urls:
 
 -   Dev: http://dev-react-map.covid-19.global.health.s3-website.us-east-2.amazonaws.com/
