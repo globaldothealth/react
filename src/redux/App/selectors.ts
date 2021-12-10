@@ -10,3 +10,5 @@ export const selectTotalCasesIsLoading = (state: RootState) =>
     state.app.isLoading;
 export const selectSelectedCountryInSideBar = (state: RootState) =>
     state.app.selectedCountryInSideBar;
+export const selectLastUpdateDate = (state: RootState) =>
+    state.app.lastUpdateDate;

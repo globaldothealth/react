@@ -1,12 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CountryDataRow, TotalCasesValues } from 'models/CountryData';
+import { setLastUpdateDate } from './slice';
 
 // Fetch countries data from AWS S3 JSON file
 export const fetchCountriesData = createAsyncThunk<
     CountryDataRow[],
     void,
     { rejectValue: string }
->('app/fetchCountriesData', async (_, { rejectWithValue }) => {
+>('app/fetchCountriesData', async (_, { rejectWithValue, dispatch }) => {
     const dataUrl = process.env.REACT_APP_COUNTRY_VIEW_DATA_URL;
 
     try {
@@ -17,6 +18,9 @@ export const fetchCountriesData = createAsyncThunk<
             throw new Error('Fetching countries data failed');
 
         const jsonResponse = await response.json();
+
+        const lastUpdateDate = Object.keys(jsonResponse)[0];
+        dispatch(setLastUpdateDate(lastUpdateDate));
 
         const keys = Object.keys(jsonResponse);
         if (keys.length === 0) throw new Error('Wrong data format');

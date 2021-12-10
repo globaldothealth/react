@@ -6,6 +6,7 @@ import { useState, useEffect, SyntheticEvent } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
     selectCountriesData,
+    selectLastUpdateDate,
     selectTotalCases,
     selectTotalCasesIsLoading,
 } from 'redux/App/selectors';
@@ -35,6 +36,8 @@ const SideBar = () => {
 
     const totalCasesCount = useAppSelector(selectTotalCases);
     const totalCasesCountIsLoading = useAppSelector(selectTotalCasesIsLoading);
+    const lastUpdateDate = useAppSelector(selectLastUpdateDate);
+    const convertedDate = new Date(lastUpdateDate).toDateString();
 
     // Sidebar has other content in VariantsView
     useEffect(() => {
@@ -132,7 +135,7 @@ const SideBar = () => {
                                 />
                             ) : (
                                 <span id="last-updated-date">
-                                    Thu Nov 25 2021
+                                    {convertedDate}
                                 </span>
                             )}
                         </div>

@@ -10,6 +10,7 @@ interface AppState {
     countriesData: CountryDataRow[];
     totalNumberOfCases: number;
     selectedCountryInSideBar: string;
+    lastUpdateDate: string;
 }
 
 const initialState: AppState = {
@@ -19,6 +20,7 @@ const initialState: AppState = {
     countriesData: [],
     totalNumberOfCases: 0,
     selectedCountryInSideBar: '',
+    lastUpdateDate: '',
 };
 
 export const appSlice = createSlice({
@@ -30,6 +32,9 @@ export const appSlice = createSlice({
         },
         setSelectedCountryInSidebar: (state, action: PayloadAction<string>) => {
             state.selectedCountryInSideBar = action.payload;
+        },
+        setLastUpdateDate: (state, action: PayloadAction<string>) => {
+            state.lastUpdateDate = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -76,7 +81,7 @@ export const appSlice = createSlice({
     },
 });
 
-export const { setIsMapLoading, setSelectedCountryInSidebar } =
+export const { setIsMapLoading, setSelectedCountryInSidebar, setLastUpdateDate } =
     appSlice.actions;
 
 export default appSlice.reducer;
