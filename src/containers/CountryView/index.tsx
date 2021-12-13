@@ -50,12 +50,12 @@ const CountryView: React.FC = () => {
     useEffect(() => {
         if (selectedCountry) {
             const getCountryCoordinates = (contriesList: CountryDataRow[]) => {
-                const xxx = contriesList.filter(
+                const finalCountry = contriesList.filter(
                     (el) =>
                         el.code.toLowerCase() === selectedCountry.toLowerCase(),
                 );
                 return {
-                    center: [xxx[0].long, xxx[0].lat] as LngLatLike,
+                    center: [finalCountry[0].long, finalCountry[0].lat] as LngLatLike,
                     zoom: 5,
                 };
             };

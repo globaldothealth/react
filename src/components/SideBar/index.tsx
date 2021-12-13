@@ -199,7 +199,7 @@ const SideBar = () => {
             <GhListButtonBar
                 id="ghlist"
                 as="a"
-                href="https://data.covid-19.global.health/"
+                href={process.env.REACT_APP_DATA_PORTAL_URL || ''}
             >
                 See all cases <img src={ghListLogo} />
                 <span>Data</span>
