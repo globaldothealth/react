@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { fetchCountriesData, fetchTotalCases } from 'redux/App/thunks';
 import { selectIsLoading, selectError } from 'redux/App/selectors';
 import { selectIsLoading as selectVariantsViewLoading } from 'redux/VariantsView/selectors';
+import { selectIsLoading as selectCoverageViewLoading } from 'redux/CoverageView/selectors';
 import { selectIsRegionalViewLoading } from 'redux/RegionalView/selectors';
 import Loader from 'components/Loader';
 import ErrorAlert from 'components/ErrorAlert';
@@ -22,6 +23,7 @@ const App = () => {
     const isLoading = useAppSelector(selectIsLoading);
     const isVariantsViewLoading = useAppSelector(selectVariantsViewLoading);
     const isRegionalViewLoading = useAppSelector(selectIsRegionalViewLoading);
+    const isCoverageViewLoading = useAppSelector(selectCoverageViewLoading);
     const error = useAppSelector(selectError);
 
     useEffect(() => {
@@ -38,21 +40,15 @@ const App = () => {
             <TopBar />
             <SideBar />
 
-            {!error ? (
-                <Routes>
-                    <Route
-                        path="/"
-                        element={<Navigate replace to="/country" />}
-                    />
-                    <Route path="/country" element={<CountryView />} />
-                    <Route path="/region" element={<RegionalView />} />
-                    <Route path="/coverage" element={<CoverageView />} />
-                    <Route
-                        path="/variant-reporting"
-                        element={<VariantsView />}
-                    />
-                </Routes>
-            ) : (
+            <Routes>
+                <Route path="/" element={<Navigate replace to="/country" />} />
+                <Route path="/country" element={<CountryView />} />
+                <Route path="/region" element={<RegionalView />} />
+                <Route path="/coverage" element={<CoverageView />} />
+                <Route path="/variant-reporting" element={<VariantsView />} />
+            </Routes>
+
+            {error && (
                 <ErrorContainer>
                     <ErrorAlert errorMessage={error} />
                 </ErrorContainer>

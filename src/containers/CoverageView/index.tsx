@@ -3,12 +3,17 @@ import ReactDOM from 'react-dom';
 import mapboxgl, { MapSourceDataEvent, EventData, LngLatLike } from 'mapbox-gl';
 import { useMapboxMap } from 'hooks/useMapboxMap';
 import { MapContainer } from 'theme/globalStyles';
-import { useAppSelector } from 'redux/hooks';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
     selectCountriesData,
     selectIsLoading,
     selectSelectedCountryInSideBar,
 } from 'redux/App/selectors';
+import {
+    selectCompletenessData,
+    selectIsLoading as selectCoverageViewLoading,
+} from 'redux/CoverageView/selectors';
+import { fetchCompletenessData } from 'redux/CoverageView/thunks';
 import Loader from 'components/Loader';
 import { parseSearchQuery, getCoveragePercentage } from 'utils/helperFunctions';
 import countryLookupTable from 'data/admin0-lookup-table.json';
@@ -29,12 +34,15 @@ const dataLayers: LegendRow[] = [
 ];
 
 const CoverageView: React.FC = () => {
+    const dispatch = useAppDispatch();
     const mapboxAccessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || '';
     const dataPortalUrl = process.env.REACT_APP_DATA_PORTAL_URL;
 
     const countriesData = useAppSelector(selectCountriesData);
     const isLoading = useAppSelector(selectIsLoading);
     const selectedCountry = useAppSelector(selectSelectedCountryInSideBar);
+    const isCoverageViewLoading = useAppSelector(selectCoverageViewLoading);
+    const completenessData = useAppSelector(selectCompletenessData);
 
     const [mapLoaded, setMapLoaded] = useState(false);
 
@@ -44,6 +52,10 @@ const CoverageView: React.FC = () => {
     const lookupTableData = countryLookupTable.adm0.data.all as {
         [key: string]: any;
     };
+
+    useEffect(() => {
+        dispatch(fetchCompletenessData());
+    }, []);
 
     // Fly to country
     useEffect(() => {
@@ -231,10 +243,10 @@ const CoverageView: React.FC = () => {
 
     return (
         <>
-            {!mapLoaded && <Loader />}
+            {(!mapLoaded || isCoverageViewLoading) && <Loader />}
             <MapContainer
                 ref={mapContainer}
-                isLoading={isLoading || !mapLoaded}
+                isLoading={isLoading || !mapLoaded || isCoverageViewLoading}
             />
             <Legend title="Coverage" legendRows={dataLayers} />
         </>
