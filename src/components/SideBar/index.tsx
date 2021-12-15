@@ -72,7 +72,7 @@ const SideBar = () => {
                     (casecount / totalCasesCount) * 100;
                 return (
                     <LocationListItem
-                        key={code}
+                        key={_id}
                         $barWidth={countryCasesCountPercentage}
                         onClick={(e: React.MouseEvent<HTMLElement>) =>
                             handleOnCountryClick(e)
