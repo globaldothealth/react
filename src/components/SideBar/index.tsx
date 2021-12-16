@@ -26,10 +26,12 @@ import {
 } from './styled';
 import { setSelectedCountryInSidebar } from 'redux/App/slice';
 import { CountryDataRow } from 'models/CountryData';
+import { CompletenessDropdown } from './CompletenessDropdown';
 
 const SideBar = () => {
     const [openSidebar, setOpenSidebar] = useState(true);
     const [isVariantsView, setIsVariantsView] = useState(false);
+    const [isCoverageView, setIsCoverageView] = useState(false);
 
     const location = useLocation();
     const dispatch = useAppDispatch();
@@ -39,9 +41,10 @@ const SideBar = () => {
     const lastUpdateDate = useAppSelector(selectLastUpdateDate);
     const convertedDate = new Date(lastUpdateDate).toDateString();
 
-    // Sidebar has other content in VariantsView
+    // Sidebar has other content in VariantsView and CoverageView
     useEffect(() => {
         setIsVariantsView(location.pathname === '/variant-reporting');
+        setIsCoverageView(location.pathname === '/coverage');
     }, [location]);
 
     const countriesData = useAppSelector(selectCountriesData);
@@ -176,6 +179,7 @@ const SideBar = () => {
                             )}
                         />
                     </SearchBar>
+                    {isCoverageView && <CompletenessDropdown />}
                     <LocationList>
                         {totalCasesCountIsLoading ? (
                             <CountriesListSkeleton

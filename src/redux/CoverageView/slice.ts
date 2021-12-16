@@ -11,7 +11,7 @@ interface CoverageViewState {
 const initialState: CoverageViewState = {
     isLoading: false,
     completenessData: [],
-    chosenCompletenessField: '',
+    chosenCompletenessField: 'cases',
 };
 
 const coverageViewSlice = createSlice({
