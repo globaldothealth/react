@@ -44,9 +44,7 @@ const SideBar = () => {
         setIsVariantsView(location.pathname === '/variant-reporting');
     }, [location]);
 
-    const countriesData = useAppSelector(selectCountriesData)
-        .filter((item) => item._id != null && item.code !== 'ZZ')
-        .sort((a, b) => (a.casecount < b.casecount ? 1 : -1));
+    const countriesData = useAppSelector(selectCountriesData);
 
     const handleOnClick = () => {
         setOpenSidebar((value) => !value);
