@@ -24,9 +24,11 @@ const useDragging = () => {
 
     function onMouseDown(e: any) {
         if (e.button !== 0) return;
-        setIsDragging(true);
+
+        e.target.className !== 'modal-cancel' ? setIsDragging(true) : 'null';
 
         ref.current !== null &&
+            e.target.className !== 'modal-cancel' &&
             setPos({
                 x: e.x - ref.current.offsetWidth / 2,
                 y: e.y - ref.current.offsetHeight / 2,

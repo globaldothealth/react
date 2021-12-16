@@ -1,5 +1,5 @@
 import logo from 'assets/images/gh_logo.svg';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { LogoStyles, LogoImage, MapGuideButton } from './styled';
 import MapGuide from './MapGuide';
 
@@ -37,7 +37,11 @@ export default function GHListLogo(): JSX.Element {
                     <span className="map-guide-text">Map Guide</span>
                 </button>
             </MapGuideButton>
-            {showMapGuide ? <MapGuide /> : null}
+            {showMapGuide ? (
+                <MapGuide
+                    showMapGuide={showMapGuide}
+                />
+            ) : null}
         </LogoStyles>
     );
 }

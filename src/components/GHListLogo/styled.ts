@@ -37,7 +37,7 @@ export const MapGuideButton = styled('div')`
         min-width: 64px;
         padding: 7px;
         box-sizing: border-box;
-        font-family: Mabry Pro, sans-serif;
+        font-family: 'Mabry Pro', sans-serif;
         font-weight: 500;
         border-radius: 4px;
         text-transform: uppercase;
@@ -57,6 +57,9 @@ export const MapGuideButton = styled('div')`
             flex-shrink: 0;
             user-select: none;
         }
+        .map-guide-text {
+            color: #0094e2;
+        }
     }
     span {
         text-transform: uppercase;
@@ -65,5 +68,59 @@ export const MapGuideButton = styled('div')`
         vertical-align: middle;
         text-decoration: none;
         font-family: 'Mabry Pro';
+    }
+`;
+
+export const ModalContent = styled('div')`
+    cursor: move;
+    dsplay: flex;
+    flex-direction: column;
+    position: absolute;
+    overflow: hidden;
+    z-index: 17;
+    user-select: none;
+    padding: 20px;
+    background: #0094e2;
+    color: #fff;
+    font-family: 'Mabry Pro', sans-serif;
+    width: 50%;
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        0% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+    .modal-cancel {
+        position: absolute;
+        display: flex;
+        cursor: pointer;
+        right: 30px;
+        width: fit-content;
+    }
+    h1 {
+        font-family: 'Mabry Pro', sans-serif;
+        font-weight: normal;
+        text-align: center;
+        margin-top: 20px;
+    }
+    p {
+        font-family: Inter, Helvetica, Arial, sans-serif;
+        margin: 1.5rem auto;
+        a {
+            text-decoration: underline;
+            color: #fff;
+        }
     }
 `;
