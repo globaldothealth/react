@@ -26,4 +26,34 @@ describe('<SideBar />', () => {
 
         //TODO: add action to check if germany was clicked correctly (ie. zoom into the right country)
     });
+
+    it('Displays completeness select in coverage view', () => {
+        cy.intercept(
+            'GET',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
+            { fixture: 'completenessData.json', statusCode: 200 },
+        ).as('fetchCompletenessData');
+
+        cy.visit('/coverage');
+        cy.wait('@fetchCompletenessData');
+
+        cy.contains(/Choose a field/i);
+    });
+
+    it.only('Changes countries list after choosing completeness field', () => {
+        cy.intercept(
+            'GET',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
+            { fixture: 'completenessData.json', statusCode: 200 },
+        ).as('fetchCompletenessData');
+
+        cy.visit('/coverage');
+        cy.wait('@fetchCompletenessData');
+
+        cy.get('#completeness-field-select').click();
+        cy.contains('_id').click();
+
+        cy.contains(/United States/i).should('not.exist');
+        cy.contains(/Cuba/i);
+    });
 });

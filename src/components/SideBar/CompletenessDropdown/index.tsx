@@ -41,6 +41,7 @@ export const CompletenessDropdown: React.FC = () => {
                 Choose a field
             </InputLabel>
             <Select
+                disabled={isLoading}
                 labelId="completeness-field-label"
                 id="completeness-field-select"
                 value={chosenCompletenessField}
