@@ -51,6 +51,7 @@ describe('<SideBar />', () => {
         cy.wait('@fetchCompletenessData');
 
         cy.get('#completeness-field-select').click();
+        cy.wait(500);
         cy.contains('_id').click();
 
         cy.contains(/United States/i).should('not.exist');
