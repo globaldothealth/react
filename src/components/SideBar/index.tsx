@@ -112,7 +112,7 @@ const SideBar = () => {
                                     <span className="label">
                                         {country.country}
                                     </span>
-                                    <span className="num">{percentage}</span>
+                                    <span className="num">{percentage}%</span>
                                 </button>
                                 <div className="country-cases-bar"></div>
                             </LocationListItem>
