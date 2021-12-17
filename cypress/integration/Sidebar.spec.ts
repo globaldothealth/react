@@ -40,7 +40,7 @@ describe('<SideBar />', () => {
         cy.contains(/Choose a field/i);
     });
 
-    it.only('Changes countries list after choosing completeness field', () => {
+    it('Changes countries list after choosing completeness field', () => {
         cy.intercept(
             'GET',
             'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
