@@ -47,10 +47,18 @@ describe('<SideBar />', () => {
             { fixture: 'completenessData.json', statusCode: 200 },
         ).as('fetchCompletenessData');
 
+        cy.intercept(
+            'GET',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/country/latest.json',
+            { fixture: 'countriesData.json', statusCode: 200 },
+        ).as('fetchCountriesData');
+
         cy.visit('/coverage');
         cy.wait('@fetchCompletenessData');
+        cy.wait('@fetchCountriesData');
 
         cy.get('#completeness-field-select').click();
+        cy.get('[data-value="_id"]').scrollIntoView();
         cy.contains('_id').click();
 
         cy.contains(/United States/i).should('not.exist');
