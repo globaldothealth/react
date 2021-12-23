@@ -1,4 +1,4 @@
-describe('<TopBar />', () => {
+describe('<Navbar />', () => {
     it('Displays navbar and logo', () => {
         cy.visit('/');
 
@@ -25,7 +25,7 @@ describe('<TopBar />', () => {
             .should('be.visible')
             .click();
         cy.get('.MuiDialog-paperScrollPaper').should('exist');
-        cy.contains('Close').click();
+        cy.get('[aria-label="close"]').click();
         cy.get('.MuiDialog-paperScrollPaper').should('not.exist');
         cy.contains(/Map Guide/i)
             .should('be.visible')

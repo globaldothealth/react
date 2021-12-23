@@ -1,5 +1,7 @@
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
 
 export const StyledMapGuideButton = styled('div')`
     margin-left: 15px;
@@ -40,7 +42,6 @@ export const StyledMapGuideDialog = styled(Dialog)`
         background: #0094e2;
         font-family: 'Mabry Pro';
         color: #fff;
-        max-width: 70rem;
     }
     h1,
     p,
@@ -59,3 +60,20 @@ export const StyledMapGuideDialog = styled(Dialog)`
         color: #fff;
     }
 `;
+
+export const StyledDialogTitle = styled(DialogTitle)(() => ({
+    cursor: 'move',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: '2.8rem',
+    textAlign: 'center',
+    width: '100%',
+    position: 'relative',
+}));
+
+export const CloseButton = styled(IconButton)(() => ({
+    color: '#fff',
+    position: 'absolute',
+    right: '2rem',
+}));

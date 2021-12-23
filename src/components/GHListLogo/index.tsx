@@ -1,6 +1,6 @@
 import logo from 'assets/images/gh_logo.svg';
 import { LogoStyles, LogoImage } from './styled';
-import MapGuide from '../MapGuide/MapGuide';
+import MapGuide from 'components/MapGuide';
 
 export default function GHListLogo(): JSX.Element {
     return (
