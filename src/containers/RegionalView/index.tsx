@@ -204,8 +204,11 @@ export const RegionalView: React.FC = () => {
                 : '';
 
             let searchQuery: string;
-
-            if (admin1 !== '' || admin2 !== '' || admin3 !== '') {
+            if (
+                admin1Query !== '' ||
+                admin2Query !== '' ||
+                admin3Query !== ''
+            ) {
                 searchQuery = `cases?country=${parseSearchQuery(
                     country,
                 )}${admin1Query}${admin2Query}${admin3Query}`;
