@@ -18,8 +18,13 @@ import ReactGA from 'react-ga';
 import { ErrorContainer } from './styled';
 
 const App = () => {
+    const env = process.env.NDOE_ENV || 'development';
+
     const gaTrackingId = process.env.REACT_APP_GA_TRACKING_ID || '';
-    ReactGA.initialize(gaTrackingId);
+
+    if (env === 'production') {
+        ReactGA.initialize(gaTrackingId);
+    }
 
     const location = useLocation();
     const dispatch = useAppDispatch();
@@ -30,17 +35,17 @@ const App = () => {
     const error = useAppSelector(selectError);
 
     useEffect(() => {
+        if (env !== 'production') return;
+
         dispatch(fetchCountriesData());
         dispatch(fetchTotalCases());
-    }, []);
+    }, [env]);
 
     // Track page views
     useEffect(() => {
         ReactGA.set({ page: location.pathname });
         ReactGA.pageview(location.pathname);
     }, [location]);
-
-    const env = process.env.NODE_ENV;
 
     return (
         <div className="App">
