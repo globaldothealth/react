@@ -174,6 +174,7 @@ const SideBar = () => {
                             key={_id}
                             $barWidth={countryCasesCountPercentage}
                             onClick={() => handleOnCountryClick({ _id, code })}
+                            data-cy="listed-country"
                         >
                             <button>
                                 <span className="label">{_id}</span>
