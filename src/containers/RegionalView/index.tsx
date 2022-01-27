@@ -61,21 +61,21 @@ export const RegionalView: React.FC = () => {
 
     // Fly to country
     useEffect(() => {
-        if (selectedCountry) {
-            const getCountryCoordinates = (contriesList: CountryDataRow[]) => {
-                const finalCountry = contriesList.filter(
-                    (el) => el.code === selectedCountry,
-                );
-                return {
-                    center: [
-                        finalCountry[0].long,
-                        finalCountry[0].lat,
-                    ] as LngLatLike,
-                    zoom: 5,
-                };
+        if (!selectedCountry) return;
+
+        const getCountryCoordinates = (contriesList: CountryDataRow[]) => {
+            const finalCountry = contriesList.filter(
+                (el) => el.code === selectedCountry.code,
+            );
+            return {
+                center: [
+                    finalCountry[0].long,
+                    finalCountry[0].lat,
+                ] as LngLatLike,
+                zoom: 5,
             };
-            map.current?.flyTo(getCountryCoordinates(countriesData));
-        }
+        };
+        map.current?.flyTo(getCountryCoordinates(countriesData));
     }, [selectedCountry]);
 
     // Setup map
@@ -89,7 +89,7 @@ export const RegionalView: React.FC = () => {
     }, []);
 
     // Visualize regional data
-    // It has to be done in separate function because regional data take a lot of time to load
+    // It has to be done in separate function because regional data takes a lot of time to load
     useEffect(() => {
         const mapRef = map.current;
         if (!mapRef || !mapLoaded || !regionalDataFeatureSet) return;
@@ -215,7 +215,7 @@ export const RegionalView: React.FC = () => {
             } else if (country !== region) {
                 searchQuery = `cases?country=${parseSearchQuery(
                     country,
-                )}&${searchResolution}=${region}`;
+                )}&${searchResolution}=${parseSearchQuery(region)}`;
             } else {
                 searchQuery = `cases?country=${parseSearchQuery(country)}`;
             }
