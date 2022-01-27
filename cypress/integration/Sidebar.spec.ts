@@ -95,7 +95,7 @@ describe('<SideBar />', () => {
         );
     });
 
-    it.only('Updates value in autocomplete field after selecting country from the Sidebar', () => {
+    it('Updates value in autocomplete field after selecting country from the Sidebar', () => {
         cy.visit('/');
 
         cy.wait('@fetchCountriesData');
