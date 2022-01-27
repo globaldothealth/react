@@ -102,7 +102,7 @@ describe('<SideBar />', () => {
 
         cy.get('[data-cy="autocomplete-input"').should('have.value', '');
         const listedCountries = cy.get('[data-cy="listed-country"]');
-        listedCountries.should('have.length.gte', 4);
+        listedCountries.should('have.length.gte', 5);
 
         cy.wait(100);
 
