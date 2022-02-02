@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import mapboxgl, { MapSourceDataEvent, EventData, LngLatLike } from 'mapbox-gl';
+import mapboxgl, { MapSourceDataEvent, EventData } from 'mapbox-gl';
 import { useMapboxMap } from 'hooks/useMapboxMap';
 import { MapContainer } from 'theme/globalStyles';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -21,7 +21,6 @@ import countryLookupTable from 'data/admin0-lookup-table.json';
 import { CoverageViewColors } from 'models/Colors';
 import MapPopup from 'components/MapPopup';
 import { LegendRow } from 'models/LegendRow';
-import { CountryDataRow } from 'models/CountryData';
 import Legend from 'components/Legend';
 import iso from 'iso-3166-1';
 
@@ -66,21 +65,10 @@ const CoverageView: React.FC = () => {
 
     // Fly to country
     useEffect(() => {
-        if (selectedCountry) {
-            const getCountryCoordinates = (contriesList: CountryDataRow[]) => {
-                const finalCountry = contriesList.filter(
-                    (el) => el.code === selectedCountry,
-                );
-                return {
-                    center: [
-                        finalCountry[0].long,
-                        finalCountry[0].lat,
-                    ] as LngLatLike,
-                    zoom: 5,
-                };
-            };
-            map.current?.flyTo(getCountryCoordinates(countriesData));
-        }
+        if (!selectedCountry) return;
+
+        const bounds = lookupTableData[selectedCountry.code].bounds;
+        map.current?.fitBounds(bounds);
     }, [selectedCountry]);
 
     // Setup map
@@ -152,6 +140,7 @@ const CoverageView: React.FC = () => {
                                 lat: countryRow.lat,
                                 long: countryRow.long,
                                 coverage: coveragePercentage,
+                                bounds: lookupTableData[countryRow.code].bounds,
                             },
                         );
 
@@ -166,6 +155,10 @@ const CoverageView: React.FC = () => {
                     const countryCode = country?.alpha2;
 
                     if (countryCode && lookupTableData[countryCode]) {
+                        const coverage = Math.round(
+                            row[chosenCompletenessField] as number,
+                        );
+
                         mapRef.setFeatureState(
                             {
                                 source: 'countriesData',
@@ -176,7 +169,7 @@ const CoverageView: React.FC = () => {
                                 name: country.country,
                                 lat: lookupTableData[countryCode].centroid[1],
                                 long: lookupTableData[countryCode].centroid[0],
-                                coverage: row[chosenCompletenessField],
+                                coverage,
                             },
                         );
 
@@ -206,6 +199,7 @@ const CoverageView: React.FC = () => {
 
         const lat = e.features[0].state.lat;
         const lng = e.features[0].state.long;
+        const bounds = e.features[0].state.bounds;
         const coordinates: mapboxgl.LngLatLike = { lng, lat };
 
         const searchQuery = `cases?country=${parseSearchQuery(countryName)}`;
@@ -223,6 +217,9 @@ const CoverageView: React.FC = () => {
                 <BorderLinearProgress variant="determinate" value={coverage} />
             </>
         );
+
+        // Fly to the selected country before showing popup
+        mapRef.fitBounds(bounds);
 
         // This has to be done this way in order to allow for React components as a content of the popup
         const popupElement = document.createElement('div');

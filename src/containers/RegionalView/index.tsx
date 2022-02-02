@@ -10,7 +10,6 @@ import {
     parseSearchQuery,
 } from 'utils/helperFunctions';
 import { RegionalViewColors } from 'models/Colors';
-import { SearchResolution } from 'models/RegionalData';
 import MapPopup from 'components/MapPopup';
 import Loader from 'components/Loader';
 import Legend from 'components/Legend';
@@ -18,11 +17,9 @@ import { LegendRow } from 'models/LegendRow';
 
 import { MapContainer } from 'theme/globalStyles';
 import { PopupContentText } from './styled';
-import {
-    selectCountriesData,
-    selectSelectedCountryInSideBar,
-} from 'redux/App/selectors';
-import { CountryDataRow } from 'models/CountryData';
+import { selectSelectedCountryInSideBar } from 'redux/App/selectors';
+import { SearchResolution } from 'models/RegionalData';
+import countryLookupTable from 'data/admin0-lookup-table.json';
 
 const dataLayers: LegendRow[] = [
     { label: '< 100', color: RegionalViewColors['<100'] },
@@ -41,8 +38,10 @@ export const RegionalView: React.FC = () => {
 
     const [mapLoaded, setMapLoaded] = useState(false);
     const regionalData = useAppSelector(selectRegionalData);
-    const countriesData = useAppSelector(selectCountriesData);
     const selectedCountry = useAppSelector(selectSelectedCountryInSideBar);
+    const lookupTableData = countryLookupTable.adm0.data.all as {
+        [key: string]: any;
+    };
 
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useMapboxMap(mapboxAccessToken, mapContainer);
@@ -61,21 +60,10 @@ export const RegionalView: React.FC = () => {
 
     // Fly to country
     useEffect(() => {
-        if (selectedCountry) {
-            const getCountryCoordinates = (contriesList: CountryDataRow[]) => {
-                const finalCountry = contriesList.filter(
-                    (el) => el.code === selectedCountry,
-                );
-                return {
-                    center: [
-                        finalCountry[0].long,
-                        finalCountry[0].lat,
-                    ] as LngLatLike,
-                    zoom: 5,
-                };
-            };
-            map.current?.flyTo(getCountryCoordinates(countriesData));
-        }
+        if (!selectedCountry) return;
+
+        const bounds = lookupTableData[selectedCountry.code].bounds;
+        map.current?.fitBounds(bounds);
     }, [selectedCountry]);
 
     // Setup map
@@ -89,7 +77,7 @@ export const RegionalView: React.FC = () => {
     }, []);
 
     // Visualize regional data
-    // It has to be done in separate function because regional data take a lot of time to load
+    // It has to be done in separate function because regional data takes a lot of time to load
     useEffect(() => {
         const mapRef = map.current;
         if (!mapRef || !mapLoaded || !regionalDataFeatureSet) return;
@@ -183,17 +171,41 @@ export const RegionalView: React.FC = () => {
             const lat = geometry.coordinates[1];
             const lng = geometry.coordinates[0];
             const caseCount = e.features[0].properties.caseCount;
-            const search = e.features[0].properties.search;
+
+            const admin1 = e.features[0].properties.admin1;
+            const admin2 = e.features[0].properties.admin2;
+            const admin3 = e.features[0].properties.admin3;
+            const searchResolution = e.features[0].properties
+                .search as SearchResolution;
+
             const coordinates: LngLatLike = { lng, lat };
 
-            let searchQuery: string;
+            // Prepare search query to always pass all available regional data
+            const admin1Query = admin1
+                ? `&admin1=${parseSearchQuery(admin1)}`
+                : '';
+            const admin2Query = admin2
+                ? `&admin2=${parseSearchQuery(admin2)}`
+                : '';
+            const admin3Query = admin3
+                ? `&admin3=${parseSearchQuery(admin3)}`
+                : '';
 
-            if (search === SearchResolution.Country) {
-                searchQuery = `cases?country=${parseSearchQuery(country)}`;
-            } else {
+            let searchQuery: string;
+            if (
+                admin1Query !== '' ||
+                admin2Query !== '' ||
+                admin3Query !== ''
+            ) {
                 searchQuery = `cases?country=${parseSearchQuery(
                     country,
-                )}&${search}=${parseSearchQuery(region)}`;
+                )}${admin1Query}${admin2Query}${admin3Query}`;
+            } else if (country !== region) {
+                searchQuery = `cases?country=${parseSearchQuery(
+                    country,
+                )}&${searchResolution}=${parseSearchQuery(region)}`;
+            } else {
+                searchQuery = `cases?country=${parseSearchQuery(country)}`;
             }
 
             const url = `${dataPortalUrl}/${searchQuery}`;
@@ -204,6 +216,12 @@ export const RegionalView: React.FC = () => {
                     {caseCount > 1 ? 's' : ''}
                 </PopupContentText>
             );
+
+            // Fly to the selected country before showing popup
+            mapRef.flyTo({
+                center: [lng, lat] as LngLatLike,
+                zoom: 5,
+            });
 
             // This has to be done this way in order to allow for React components as a content of the popup
             const popupElement = document.createElement('div');

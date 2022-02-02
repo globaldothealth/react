@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import TopBar from 'components/TopBar';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import CountryView from 'containers/CountryView';
 import { RegionalView } from 'containers/RegionalView';
 import CoverageView from 'containers/CoverageView';
@@ -13,10 +13,19 @@ import { selectIsRegionalViewLoading } from 'redux/RegionalView/selectors';
 import Loader from 'components/Loader';
 import ErrorAlert from 'components/ErrorAlert';
 import VariantsView from 'containers/VariantsView';
+import ReactGA from 'react-ga';
 
 import { ErrorContainer } from './styled';
 
 const App = () => {
+    const env = process.env.NODE_ENV;
+    const gaTrackingId = process.env.REACT_APP_GA_TRACKING_ID || '';
+
+    if (env === 'production') {
+        ReactGA.initialize(gaTrackingId);
+    }
+
+    const location = useLocation();
     const dispatch = useAppDispatch();
 
     const isLoading = useAppSelector(selectIsLoading);
@@ -28,6 +37,14 @@ const App = () => {
         dispatch(fetchCountriesData());
         dispatch(fetchTotalCases());
     }, []);
+
+    // Track page views
+    useEffect(() => {
+        if (env !== 'production') return;
+
+        ReactGA.set({ page: location.pathname });
+        ReactGA.pageview(location.pathname);
+    }, [env, location]);
 
     return (
         <div className="App">
@@ -43,7 +60,16 @@ const App = () => {
                 <Route path="/country" element={<CountryView />} />
                 <Route path="/region" element={<RegionalView />} />
                 <Route path="/coverage" element={<CoverageView />} />
-                <Route path="/variant-reporting" element={<VariantsView />} />
+                <Route
+                    path="/variant-reporting"
+                    element={
+                        env === 'development' ? (
+                            <VariantsView />
+                        ) : (
+                            <Navigate replace to="/country" />
+                        )
+                    }
+                />
             </Routes>
 
             {error && (

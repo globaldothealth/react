@@ -25,7 +25,8 @@ import {
     GhListButtonBar,
 } from './styled';
 import { setSelectedCountryInSidebar } from 'redux/App/slice';
-import { CountryDataRow } from 'models/CountryData';
+import { selectSelectedCountryInSideBar } from 'redux/App/selectors';
+import { CountryDataRow, SelectedCountry } from 'models/CountryData';
 import { CompletenessDropdown } from './CompletenessDropdown';
 import {
     selectCompletenessData,
@@ -51,6 +52,7 @@ const SideBar = () => {
     );
     const completenessDataLoading = useAppSelector(selectIsLoading);
     const convertedDate = new Date(lastUpdateDate).toDateString();
+    const selectedCountry = useAppSelector(selectSelectedCountryInSideBar);
 
     // Sidebar has other content in VariantsView and CoverageView
     useEffect(() => {
@@ -59,22 +61,58 @@ const SideBar = () => {
     }, [location]);
 
     const countriesData = useAppSelector(selectCountriesData);
+    const [autocompleteData, setAutocompleteData] = useState<SelectedCountry[]>(
+        [],
+    );
 
     const handleOnClick = () => {
         setOpenSidebar((value) => !value);
     };
 
-    const handleOnCountryClick = (e: React.MouseEvent<HTMLElement>) => {
-        const buttonValue = e.target as HTMLButtonElement;
-        dispatch(setSelectedCountryInSidebar(buttonValue.value));
+    const handleOnCountryClick = (country: SelectedCountry) => {
+        dispatch(setSelectedCountryInSidebar(country));
     };
 
     const handleAutocompleteCountrySelect = (
         event: SyntheticEvent<Element, Event>,
-        value: CountryDataRow | null,
+        value: CountryDataRow | SelectedCountry | null,
     ) => {
-        value !== null && dispatch(setSelectedCountryInSidebar(value.code));
+        value !== null && dispatch(setSelectedCountryInSidebar(value));
     };
+
+    // Parse completeness data in coverage view
+    useEffect(() => {
+        if (
+            isCoverageView &&
+            chosenCompletenessField &&
+            chosenCompletenessField !== 'cases'
+        ) {
+            const sortedCompletenessData = [...completenessData].sort((a, b) =>
+                Number(a[chosenCompletenessField]) <
+                Number(b[chosenCompletenessField])
+                    ? 1
+                    : -1,
+            );
+
+            const mappedData: SelectedCountry[] = [];
+            for (const el of sortedCompletenessData) {
+                const country = iso.whereCountry(el.country);
+
+                if (country) {
+                    const code = country.alpha2;
+                    mappedData.push({ _id: el.country, code: code });
+                }
+            }
+
+            setAutocompleteData(mappedData);
+        } else {
+            const mappedData = countriesData.map((el) => {
+                return { _id: el._id, code: el.code };
+            });
+
+            setAutocompleteData(mappedData);
+        }
+    }, [isCoverageView, chosenCompletenessField, countriesData]);
 
     const Countries = () => {
         if (
@@ -96,7 +134,7 @@ const SideBar = () => {
                         if (!country) return;
 
                         const code = country.alpha2;
-                        const percentage = Math.floor(
+                        const percentage = Math.round(
                             el[chosenCompletenessField] as number,
                         );
 
@@ -104,11 +142,14 @@ const SideBar = () => {
                             <LocationListItem
                                 key={el.country}
                                 $barWidth={percentage}
-                                onClick={(e: React.MouseEvent<HTMLElement>) =>
-                                    handleOnCountryClick(e)
+                                onClick={() =>
+                                    handleOnCountryClick({
+                                        _id: country.country,
+                                        code: code,
+                                    })
                                 }
                             >
-                                <button value={code}>
+                                <button>
                                     <span className="label">
                                         {country.country}
                                     </span>
@@ -132,11 +173,10 @@ const SideBar = () => {
                         <LocationListItem
                             key={_id}
                             $barWidth={countryCasesCountPercentage}
-                            onClick={(e: React.MouseEvent<HTMLElement>) =>
-                                handleOnCountryClick(e)
-                            }
+                            onClick={() => handleOnCountryClick({ _id, code })}
+                            data-cy="listed-country"
                         >
-                            <button value={code}>
+                            <button>
                                 <span className="label">{_id}</span>
                                 <span className="num">
                                     {casecount.toLocaleString()}
@@ -200,16 +240,21 @@ const SideBar = () => {
                             )}
                         </div>
                     </LatestGlobal>
+
                     <SearchBar className="searchbar">
                         <Autocomplete
                             id="country-select"
-                            options={countriesData}
+                            options={autocompleteData}
                             autoHighlight
                             disabled={totalCasesCountIsLoading}
                             getOptionLabel={(option) => option._id}
-                            onChange={(event, value: CountryDataRow | null) =>
+                            onChange={(event, value: SelectedCountry | null) =>
                                 handleAutocompleteCountrySelect(event, value)
                             }
+                            isOptionEqualToValue={(option, value) =>
+                                option.code === value.code
+                            }
+                            value={selectedCountry || { _id: '', code: '' }}
                             renderOption={(props, option) => (
                                 <Box
                                     component="li"
@@ -221,7 +266,7 @@ const SideBar = () => {
                                         width="20"
                                         src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
                                         srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                                        alt=""
+                                        alt={`${option._id} flag`}
                                     />
                                     {option._id} ({option.code})
                                 </Box>
@@ -232,6 +277,7 @@ const SideBar = () => {
                                     label="Choose a country"
                                     inputProps={{
                                         ...params.inputProps,
+                                        'data-cy': 'autocomplete-input',
                                     }}
                                 />
                             )}

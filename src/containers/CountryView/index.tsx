@@ -9,7 +9,7 @@ import {
 } from 'redux/App/selectors';
 import countryLookupTable from 'data/admin0-lookup-table.json';
 import { CountryViewColors } from 'models/Colors';
-import mapboxgl, { MapSourceDataEvent, EventData, LngLatLike } from 'mapbox-gl';
+import mapboxgl, { MapSourceDataEvent, EventData } from 'mapbox-gl';
 import Legend from 'components/Legend';
 import { LegendRow } from 'models/LegendRow';
 import { parseSearchQuery } from 'utils/helperFunctions';
@@ -18,7 +18,6 @@ import MapPopup from 'components/MapPopup';
 import { MapContainer } from 'theme/globalStyles';
 import Loader from 'components/Loader';
 import { PopupContentText } from './styled';
-import { CountryDataRow } from 'models/CountryData';
 
 const dataLayers: LegendRow[] = [
     { label: '< 10k', color: CountryViewColors['10K'] },
@@ -48,22 +47,10 @@ const CountryView: React.FC = () => {
 
     // Fly to country
     useEffect(() => {
-        if (selectedCountry) {
-            const getCountryCoordinates = (contriesList: CountryDataRow[]) => {
-                const finalCountry = contriesList.filter(
-                    (el) =>
-                        el.code === selectedCountry
-                );
-                return {
-                    center: [
-                        finalCountry[0].long,
-                        finalCountry[0].lat,
-                    ] as LngLatLike,
-                    zoom: 5,
-                };
-            };
-            map.current?.flyTo(getCountryCoordinates(countriesData));
-        }
+        if (!selectedCountry) return;
+
+        const bounds = lookupTableData[selectedCountry.code].bounds;
+        map.current?.fitBounds(bounds);
     }, [selectedCountry]);
 
     // Setup map
@@ -118,6 +105,7 @@ const CountryView: React.FC = () => {
                         name: countryRow._id,
                         lat: countryRow.lat,
                         long: countryRow.long,
+                        bounds: lookupTableData[countryRow.code].bounds,
                     },
                 );
             }
@@ -186,6 +174,7 @@ const CountryView: React.FC = () => {
 
             const lat = e.features[0].state.lat;
             const lng = e.features[0].state.long;
+            const bounds = e.features[0].state.bounds;
             const coordinates: mapboxgl.LngLatLike = { lng, lat };
 
             const searchQuery = `cases?country=${parseSearchQuery(
@@ -199,6 +188,9 @@ const CountryView: React.FC = () => {
                     {caseCount > 1 ? 's' : ''}
                 </PopupContentText>
             );
+
+            // Fly to the selected country before showing popup
+            mapRef.fitBounds(bounds);
 
             // This has to be done this way in order to allow for React components as a content of the popup
             const popupElement = document.createElement('div');
