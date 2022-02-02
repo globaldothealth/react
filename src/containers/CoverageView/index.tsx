@@ -148,15 +148,15 @@ const CoverageView: React.FC = () => {
                     }
                 }
             } else {
-                for (const row of completenessData) {
-                    const country = iso.whereCountry(
-                        row.country.replace('_', ' '),
-                    );
+                for (const row of Object.keys(completenessData)) {
+                    const country = iso.whereCountry(row.replace('_', ' '));
                     const countryCode = country?.alpha2;
 
                     if (countryCode && lookupTableData[countryCode]) {
                         const coverage = Math.round(
-                            row[chosenCompletenessField] as number,
+                            completenessData[row][
+                                chosenCompletenessField
+                            ] as number,
                         );
 
                         mapRef.setFeatureState(
@@ -170,6 +170,7 @@ const CoverageView: React.FC = () => {
                                 lat: lookupTableData[countryCode].centroid[1],
                                 long: lookupTableData[countryCode].centroid[0],
                                 coverage,
+                                bounds: lookupTableData[countryCode].bounds,
                             },
                         );
 
