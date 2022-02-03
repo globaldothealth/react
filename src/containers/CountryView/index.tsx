@@ -6,6 +6,8 @@ import {
     selectIsLoading,
     selectCountriesData,
     selectSelectedCountryInSideBar,
+    selectFreshnessData,
+    selectFreshnessLoading,
 } from 'redux/App/selectors';
 import { setSelectedCountryInSidebar } from 'redux/App/slice';
 import countryLookupTable from 'data/admin0-lookup-table.json';
@@ -38,6 +40,8 @@ const CountryView: React.FC = () => {
     const isLoading = useAppSelector(selectIsLoading);
     const countriesData = useAppSelector(selectCountriesData);
     const selectedCountry = useAppSelector(selectSelectedCountryInSideBar);
+    const freshnessData = useAppSelector(selectFreshnessData);
+    const freshnessLoading = useAppSelector(selectFreshnessLoading);
 
     const [mapLoaded, setMapLoaded] = useState(false);
 
@@ -59,7 +63,7 @@ const CountryView: React.FC = () => {
     // Setup map
     useEffect(() => {
         const mapRef = map.current;
-        if (!mapRef || isLoading) return;
+        if (!mapRef || isLoading || freshnessLoading) return;
 
         mapRef.on('load', () => {
             if (mapRef.getSource('countriesData')) {
@@ -88,7 +92,7 @@ const CountryView: React.FC = () => {
                 mapRef.on('sourcedata', setAfterSourceLoaded);
             }
         });
-    }, [isLoading]);
+    }, [isLoading, freshnessLoading]);
 
     // Display countries data on the map
     const displayCountriesOnMap = () => {
@@ -109,6 +113,8 @@ const CountryView: React.FC = () => {
                         lat: countryRow.lat,
                         long: countryRow.long,
                         code: countryRow.code,
+                        lastUploadDate:
+                            freshnessData[countryRow.code] || 'unknown',
                     },
                 );
             }
@@ -175,6 +181,7 @@ const CountryView: React.FC = () => {
             const caseCount = e.features[0].state.caseCount || 0;
             const countryName = e.features[0].state.name;
             const code = e.features[0].state.code;
+            const lastUploadDate = e.features[0].state.lastUploadDate;
 
             const lat = e.features[0].state.lat;
             const lng = e.features[0].state.long;
@@ -200,6 +207,7 @@ const CountryView: React.FC = () => {
                 <MapPopup
                     title={countryName}
                     content={popupContent}
+                    lastUploadDate={lastUploadDate}
                     buttonText="Explore Country Data"
                     buttonUrl={url}
                 />,
