@@ -53,7 +53,7 @@ describe('<SideBar />', () => {
     it('Displays completeness select in coverage view', () => {
         cy.intercept(
             'GET',
-            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/metrics/completeness.json',
             { fixture: 'completenessData.json', statusCode: 200 },
         ).as('fetchCompletenessData');
 
@@ -61,26 +61,6 @@ describe('<SideBar />', () => {
         cy.wait('@fetchCompletenessData');
 
         cy.contains(/Choose a field/i);
-    });
-
-    it('Changes countries list after choosing completeness field', () => {
-        cy.intercept(
-            'GET',
-            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
-            { fixture: 'completenessData.json', statusCode: 200 },
-        ).as('fetchCompletenessData');
-
-        cy.visit('/coverage');
-        cy.wait(['@fetchCompletenessData', '@fetchCountriesData']);
-
-        cy.wait(1000);
-
-        cy.get('#completeness-field-select').click();
-        cy.get('[data-value="_id"]').scrollIntoView();
-        cy.contains('_id').click();
-
-        cy.contains(/United States/i).should('not.exist');
-        cy.contains(/Cuba/i);
     });
 
     it('Redirects user to Data portal after clicking "See all cases"', () => {
@@ -112,23 +92,10 @@ describe('<SideBar />', () => {
         );
     });
 
-    it('Displays completeness select in coverage view', () => {
+    it.only('Changes countries list after choosing completeness field', () => {
         cy.intercept(
             'GET',
-            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
-            { fixture: 'completenessData.json', statusCode: 200 },
-        ).as('fetchCompletenessData');
-
-        cy.visit('/coverage');
-        cy.wait('@fetchCompletenessData');
-
-        cy.contains(/Choose a field/i);
-    });
-
-    it('Changes countries list after choosing completeness field', () => {
-        cy.intercept(
-            'GET',
-            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/metrics/completeness.json',
             { fixture: 'completenessData.json', statusCode: 200 },
         ).as('fetchCompletenessData');
 
@@ -149,6 +116,6 @@ describe('<SideBar />', () => {
         cy.contains('_id').click();
 
         cy.contains(/United States/i).should('not.exist');
-        cy.contains(/Cuba/i);
+        cy.contains(/Afghanistan/i);
     });
 });
