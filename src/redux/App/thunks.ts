@@ -3,6 +3,7 @@ import { CountryDataRow, TotalCasesValues } from 'models/CountryData';
 import { FreshnessData, ParsedFreshnessData } from 'models/FreshnessData';
 import { setLastUpdateDate } from './slice';
 import { parseFreshnessData } from 'utils/helperFunctions';
+import { parse } from 'date-fns';
 
 // Fetch countries data from AWS S3 JSON file
 export const fetchCountriesData = createAsyncThunk<
@@ -22,7 +23,8 @@ export const fetchCountriesData = createAsyncThunk<
         const jsonResponse = await response.json();
 
         const lastUpdateDate = Object.keys(jsonResponse)[0];
-        dispatch(setLastUpdateDate(lastUpdateDate));
+        const parsedDate = parse(lastUpdateDate, 'MM-dd-yyyy', new Date());
+        dispatch(setLastUpdateDate(JSON.stringify(parsedDate)));
 
         const keys = Object.keys(jsonResponse);
         if (keys.length === 0) throw new Error('Wrong data format');

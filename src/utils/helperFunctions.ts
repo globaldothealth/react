@@ -1,4 +1,4 @@
-import { parse, isAfter, format } from 'date-fns';
+import { parse, isAfter, format, parseISO } from 'date-fns';
 import { CountryDataRow } from 'models/CountryData';
 import { VariantsDataRow, VariantsLabels } from 'models/VariantsData';
 import { statesList, StatesData, DataStatus } from 'data/statesData';
@@ -363,4 +363,16 @@ export const parseFreshnessData = (
     }
 
     return parsedData;
+};
+
+export const convertStringDateToDate = (date: string) => {
+    let finalDate;
+    try {
+        finalDate = JSON.parse(date);
+        finalDate = format(parseISO(finalDate), 'E LLL d yyyy');
+    } catch (e) {
+        finalDate = 'loading date';
+    }
+
+    return finalDate;
 };
