@@ -124,12 +124,16 @@ const SideBar = () => {
         ) {
             const sortedCompletenessData = [
                 ...Object.keys(completenessData),
-            ].sort((a, b) =>
-                Number(completenessData[a][chosenCompletenessField]) <
-                Number(completenessData[b][chosenCompletenessField])
-                    ? 1
-                    : -1,
-            );
+            ].sort((a, b) => {
+                const parsedNumA = Number(
+                    completenessData[a][chosenCompletenessField],
+                );
+                const parsedNumB = Number(
+                    completenessData[b][chosenCompletenessField],
+                );
+
+                return parsedNumB - parsedNumA;
+            });
 
             return (
                 <>
@@ -145,7 +149,7 @@ const SideBar = () => {
                         return (
                             <LocationListItem
                                 key={countryCode}
-                                $barWidth={percentage}
+                                $barWidth={percentage ? percentage : 0}
                                 onClick={() =>
                                     handleOnCountryClick({
                                         _id: country
@@ -161,7 +165,9 @@ const SideBar = () => {
                                             ? country.country
                                             : countryCode}
                                     </span>
-                                    <span className="num">{percentage}%</span>
+                                    <span className="num">
+                                        {percentage ? percentage : 0}%
+                                    </span>
                                 </button>
                                 <div className="country-cases-bar"></div>
                             </LocationListItem>
