@@ -133,31 +133,33 @@ const SideBar = () => {
 
             return (
                 <>
-                    {sortedCompletenessData.map((el) => {
-                        const country = iso.whereCountry(el.replace('_', ' '));
-                        if (!country) return;
-
-                        const code = country.alpha2;
+                    {sortedCompletenessData.map((countryCode) => {
                         const percentage = Math.round(
-                            completenessData[el][
+                            completenessData[countryCode][
                                 chosenCompletenessField
                             ] as number,
                         );
 
+                        const country = iso.whereAlpha2(countryCode);
+
                         return (
                             <LocationListItem
-                                key={el}
+                                key={countryCode}
                                 $barWidth={percentage}
                                 onClick={() =>
                                     handleOnCountryClick({
-                                        _id: country.country,
-                                        code: code,
+                                        _id: country
+                                            ? country.country
+                                            : countryCode,
+                                        code: countryCode,
                                     })
                                 }
                             >
                                 <button>
                                     <span className="label">
-                                        {country.country}
+                                        {country
+                                            ? country.country
+                                            : countryCode}
                                     </span>
                                     <span className="num">{percentage}%</span>
                                 </button>
