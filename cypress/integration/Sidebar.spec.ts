@@ -38,7 +38,7 @@ describe('<SideBar />', () => {
         cy.wait('@fetchCountriesData');
 
         cy.get('[data-cy="loading-skeleton"]').should('not.exist');
-        cy.contains(/United States/i);
+        cy.contains(/United States of America/i);
     });
 
     it('Countries list dropdown opens', () => {
@@ -53,7 +53,7 @@ describe('<SideBar />', () => {
     it('Displays completeness select in coverage view', () => {
         cy.intercept(
             'GET',
-            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/metrics/completeness.json',
             { fixture: 'completenessData.json', statusCode: 200 },
         ).as('fetchCompletenessData');
 
@@ -61,26 +61,6 @@ describe('<SideBar />', () => {
         cy.wait('@fetchCompletenessData');
 
         cy.contains(/Choose a field/i);
-    });
-
-    it('Changes countries list after choosing completeness field', () => {
-        cy.intercept(
-            'GET',
-            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/completeness-data.json',
-            { fixture: 'completenessData.json', statusCode: 200 },
-        ).as('fetchCompletenessData');
-
-        cy.visit('/coverage');
-        cy.wait(['@fetchCompletenessData', '@fetchCountriesData']);
-
-        cy.wait(1000);
-
-        cy.get('#completeness-field-select').click();
-        cy.get('[data-value="_id"]').scrollIntoView();
-        cy.contains('_id').click();
-
-        cy.contains(/United States/i).should('not.exist');
-        cy.contains(/Cuba/i);
     });
 
     it('Redirects user to Data portal after clicking "See all cases"', () => {
@@ -104,11 +84,40 @@ describe('<SideBar />', () => {
         const listedCountries = cy.get('[data-cy="listed-country"]');
         listedCountries.should('have.length.gte', 5);
 
-        cy.contains(/United States/i).click();
+        cy.wait(100);
+
+        cy.contains(/United States of America/i).click();
 
         cy.get('[data-cy="autocomplete-input"').should(
             'have.value',
-            'United States',
+            'United States of America',
         );
+    });
+
+    it('Changes countries list after choosing completeness field', () => {
+        cy.intercept(
+            'GET',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/metrics/completeness.json',
+            { fixture: 'completenessData.json', statusCode: 200 },
+        ).as('fetchCompletenessData');
+
+        cy.intercept(
+            'GET',
+            'https://covid-19-aggregates-dev.s3.eu-central-1.amazonaws.com/country/latest.json',
+            { fixture: 'countriesData.json', statusCode: 200 },
+        ).as('fetchCountriesData');
+
+        cy.visit('/coverage');
+        cy.wait('@fetchCompletenessData');
+        cy.wait('@fetchCountriesData');
+
+        cy.wait(1000);
+
+        cy.get('#completeness-field-select').click();
+        cy.get('[data-value="location.country"]').scrollIntoView();
+        cy.contains('location.country').click();
+
+        cy.contains(/United States/i).should('not.exist');
+        cy.contains(/Afghanistan/i);
     });
 });

@@ -33,7 +33,7 @@ import {
     selectChosenCompletenessField,
     selectIsLoading,
 } from 'redux/CoverageView/selectors';
-import iso from 'iso-3166-1';
+import { convertStringDateToDate, getCountryName } from 'utils/helperFunctions';
 
 const SideBar = () => {
     const [openSidebar, setOpenSidebar] = useState(true);
@@ -51,7 +51,6 @@ const SideBar = () => {
         selectChosenCompletenessField,
     );
     const completenessDataLoading = useAppSelector(selectIsLoading);
-    const convertedDate = new Date(lastUpdateDate).toDateString();
     const selectedCountry = useAppSelector(selectSelectedCountryInSideBar);
 
     // Sidebar has other content in VariantsView and CoverageView
@@ -87,27 +86,34 @@ const SideBar = () => {
             chosenCompletenessField &&
             chosenCompletenessField !== 'cases'
         ) {
-            const sortedCompletenessData = [...completenessData].sort((a, b) =>
-                Number(a[chosenCompletenessField]) <
-                Number(b[chosenCompletenessField])
+            const sortedCompletenessData = [
+                ...Object.keys(completenessData),
+            ].sort((a, b) =>
+                Number(completenessData[a][chosenCompletenessField]) <
+                Number(completenessData[b][chosenCompletenessField])
                     ? 1
                     : -1,
             );
 
             const mappedData: SelectedCountry[] = [];
-            for (const el of sortedCompletenessData) {
-                const country = iso.whereCountry(el.country);
+            for (const countryCode of sortedCompletenessData) {
+                const countryName = getCountryName(countryCode);
 
-                if (country) {
-                    const code = country.alpha2;
-                    mappedData.push({ _id: el.country, code: code });
-                }
+                mappedData.push({
+                    _id: countryName,
+                    code: countryCode,
+                });
             }
 
             setAutocompleteData(mappedData);
         } else {
             const mappedData = countriesData.map((el) => {
-                return { _id: el._id, code: el.code };
+                const countryName = getCountryName(el.code);
+
+                return {
+                    _id: countryName,
+                    code: el.code,
+                };
             });
 
             setAutocompleteData(mappedData);
@@ -120,39 +126,43 @@ const SideBar = () => {
             chosenCompletenessField &&
             chosenCompletenessField !== 'cases'
         ) {
-            const sortedCompletenessData = [...completenessData].sort((a, b) =>
-                Number(a[chosenCompletenessField]) <
-                Number(b[chosenCompletenessField])
-                    ? 1
-                    : -1,
-            );
+            const sortedCompletenessData = [
+                ...Object.keys(completenessData),
+            ].sort((a, b) => {
+                const numberA = Number(
+                    completenessData[a][chosenCompletenessField],
+                );
+                const numberB = Number(
+                    completenessData[b][chosenCompletenessField],
+                );
+
+                return numberB - numberA;
+            });
 
             return (
                 <>
-                    {sortedCompletenessData.map((el) => {
-                        const country = iso.whereCountry(el.country);
-                        if (!country) return;
+                    {sortedCompletenessData.map((countryCode) => {
+                        const countryName = getCountryName(countryCode);
 
-                        const code = country.alpha2;
                         const percentage = Math.round(
-                            el[chosenCompletenessField] as number,
+                            completenessData[countryCode][
+                                chosenCompletenessField
+                            ] as number,
                         );
 
                         return (
                             <LocationListItem
-                                key={el.country}
+                                key={countryCode}
                                 $barWidth={percentage}
                                 onClick={() =>
                                     handleOnCountryClick({
-                                        _id: country.country,
-                                        code: code,
+                                        _id: countryName,
+                                        code: countryCode,
                                     })
                                 }
                             >
                                 <button>
-                                    <span className="label">
-                                        {country.country}
-                                    </span>
+                                    <span className="label">{countryName}</span>
                                     <span className="num">{percentage}%</span>
                                 </button>
                                 <div className="country-cases-bar"></div>
@@ -166,18 +176,25 @@ const SideBar = () => {
         return (
             <>
                 {countriesData.map((row) => {
-                    const { code, _id, casecount } = row;
+                    const { code, casecount } = row;
                     const countryCasesCountPercentage =
                         (casecount / totalCasesCount) * 100;
+
+                    const countryName = getCountryName(code);
                     return (
                         <LocationListItem
-                            key={_id}
+                            key={code}
                             $barWidth={countryCasesCountPercentage}
-                            onClick={() => handleOnCountryClick({ _id, code })}
+                            onClick={() =>
+                                handleOnCountryClick({
+                                    _id: countryName,
+                                    code,
+                                })
+                            }
                             data-cy="listed-country"
                         >
                             <button>
-                                <span className="label">{_id}</span>
+                                <span className="label">{countryName}</span>
                                 <span className="num">
                                     {casecount.toLocaleString()}
                                 </span>
@@ -235,7 +252,7 @@ const SideBar = () => {
                                 />
                             ) : (
                                 <span id="last-updated-date">
-                                    {convertedDate}
+                                    {convertStringDateToDate(lastUpdateDate)}
                                 </span>
                             )}
                         </div>

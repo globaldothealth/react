@@ -8,6 +8,7 @@ import { selectRegionalData } from 'redux/RegionalView/selectors';
 import {
     convertRegionalDataToFeatureSet,
     parseSearchQuery,
+    getCountryName,
 } from 'utils/helperFunctions';
 import { RegionalViewColors } from 'models/Colors';
 import MapPopup from 'components/MapPopup';
@@ -17,7 +18,12 @@ import { LegendRow } from 'models/LegendRow';
 
 import { MapContainer } from 'theme/globalStyles';
 import { PopupContentText } from './styled';
-import { selectSelectedCountryInSideBar } from 'redux/App/selectors';
+import {
+    selectSelectedCountryInSideBar,
+    selectFreshnessData,
+    selectFreshnessLoading,
+} from 'redux/App/selectors';
+import { setSelectedCountryInSidebar } from 'redux/App/slice';
 import { SearchResolution } from 'models/RegionalData';
 import countryLookupTable from 'data/admin0-lookup-table.json';
 
@@ -39,6 +45,8 @@ export const RegionalView: React.FC = () => {
     const [mapLoaded, setMapLoaded] = useState(false);
     const regionalData = useAppSelector(selectRegionalData);
     const selectedCountry = useAppSelector(selectSelectedCountryInSideBar);
+    const freshnessData = useAppSelector(selectFreshnessData);
+    const freshnessLoading = useAppSelector(selectFreshnessLoading);
     const lookupTableData = countryLookupTable.adm0.data.all as {
         [key: string]: any;
     };
@@ -55,7 +63,7 @@ export const RegionalView: React.FC = () => {
     const regionalDataFeatureSet = useMemo(() => {
         if (!regionalData || regionalData.length === 0) return undefined;
 
-        return convertRegionalDataToFeatureSet(regionalData);
+        return convertRegionalDataToFeatureSet(regionalData, freshnessData);
     }, [regionalData]);
 
     // Fly to country
@@ -80,7 +88,13 @@ export const RegionalView: React.FC = () => {
     // It has to be done in separate function because regional data takes a lot of time to load
     useEffect(() => {
         const mapRef = map.current;
-        if (!mapRef || !mapLoaded || !regionalDataFeatureSet) return;
+        if (
+            !mapRef ||
+            !mapLoaded ||
+            !regionalDataFeatureSet ||
+            freshnessLoading
+        )
+            return;
 
         if (!mapRef.getSource('regionalData')) {
             mapRef.addSource('regionalData', {
@@ -164,13 +178,16 @@ export const RegionalView: React.FC = () => {
             )
                 return;
 
-            const country = e.features[0].properties.country;
+            const code = e.features[0].properties.country;
             const region = e.features[0].properties.region;
+
+            const countryName = getCountryName(code);
 
             const geometry = e.features[0].geometry as any;
             const lat = geometry.coordinates[1];
             const lng = geometry.coordinates[0];
             const caseCount = e.features[0].properties.caseCount;
+            const lastUploadDate = e.features[0].properties.lastUploadDate;
 
             const admin1 = e.features[0].properties.admin1;
             const admin2 = e.features[0].properties.admin2;
@@ -191,22 +208,9 @@ export const RegionalView: React.FC = () => {
                 ? `&admin3=${parseSearchQuery(admin3)}`
                 : '';
 
-            let searchQuery: string;
-            if (
-                admin1Query !== '' ||
-                admin2Query !== '' ||
-                admin3Query !== ''
-            ) {
-                searchQuery = `cases?country=${parseSearchQuery(
-                    country,
-                )}${admin1Query}${admin2Query}${admin3Query}`;
-            } else if (country !== region) {
-                searchQuery = `cases?country=${parseSearchQuery(
-                    country,
-                )}&${searchResolution}=${parseSearchQuery(region)}`;
-            } else {
-                searchQuery = `cases?country=${parseSearchQuery(country)}`;
-            }
+            const searchQuery = `cases?country=${parseSearchQuery(
+                code,
+            )}${admin1Query}${admin2Query}${admin3Query}`;
 
             const url = `${dataPortalUrl}/${searchQuery}`;
 
@@ -217,18 +221,20 @@ export const RegionalView: React.FC = () => {
                 </PopupContentText>
             );
 
-            // Fly to the selected country before showing popup
-            mapRef.flyTo({
-                center: [lng, lat] as LngLatLike,
-                zoom: 5,
-            });
+            dispatch(setSelectedCountryInSidebar({ _id: countryName, code }));
+
+            const popupTitle =
+                searchResolution !== SearchResolution.Country
+                    ? `${region}, ${countryName}`
+                    : countryName;
 
             // This has to be done this way in order to allow for React components as a content of the popup
             const popupElement = document.createElement('div');
             ReactDOM.render(
                 <MapPopup
-                    title={`${region}, ${country}`}
+                    title={popupTitle}
                     content={popupContent}
+                    lastUploadDate={lastUploadDate}
                     buttonText="Explore Regional Data"
                     buttonUrl={url}
                 />,
@@ -264,7 +270,7 @@ export const RegionalView: React.FC = () => {
         } else {
             mapRef.on('sourcedata', setAfterSourceLoaded);
         }
-    }, [mapLoaded, regionalDataFeatureSet]);
+    }, [mapLoaded, regionalDataFeatureSet, freshnessLoading]);
 
     return (
         <>

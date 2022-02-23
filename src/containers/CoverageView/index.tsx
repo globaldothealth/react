@@ -8,7 +8,10 @@ import {
     selectCountriesData,
     selectIsLoading,
     selectSelectedCountryInSideBar,
+    selectFreshnessData,
+    selectFreshnessLoading,
 } from 'redux/App/selectors';
+import { setSelectedCountryInSidebar } from 'redux/App/slice';
 import {
     selectCompletenessData,
     selectChosenCompletenessField,
@@ -16,13 +19,12 @@ import {
 } from 'redux/CoverageView/selectors';
 import { fetchCompletenessData } from 'redux/CoverageView/thunks';
 import Loader from 'components/Loader';
-import { parseSearchQuery, getCoveragePercentage } from 'utils/helperFunctions';
+import { getCoveragePercentage, getCountryName } from 'utils/helperFunctions';
 import countryLookupTable from 'data/admin0-lookup-table.json';
 import { CoverageViewColors } from 'models/Colors';
 import MapPopup from 'components/MapPopup';
 import { LegendRow } from 'models/LegendRow';
 import Legend from 'components/Legend';
-import iso from 'iso-3166-1';
 
 import { PopupContentText, BorderLinearProgress } from './styled';
 
@@ -47,6 +49,8 @@ const CoverageView: React.FC = () => {
     const chosenCompletenessField = useAppSelector(
         selectChosenCompletenessField,
     );
+    const freshnessData = useAppSelector(selectFreshnessData);
+    const freshnessLoading = useAppSelector(selectFreshnessLoading);
 
     const [mapLoaded, setMapLoaded] = useState(false);
     const [featureIds, setFeatureIds] = useState<number[]>([]);
@@ -74,7 +78,7 @@ const CoverageView: React.FC = () => {
     // Setup map
     useEffect(() => {
         const mapRef = map.current;
-        if (!mapRef || isLoading) return;
+        if (!mapRef || isLoading || freshnessLoading) return;
 
         mapRef.on('load', () => {
             if (mapRef.getSource('countriesData')) {
@@ -103,7 +107,7 @@ const CoverageView: React.FC = () => {
                 mapRef.on('sourcedata', setAfterSourceLoaded);
             }
         });
-    }, [isLoading]);
+    }, [isLoading, freshnessLoading]);
 
     const setMapState = () => {
         const mapRef = map.current;
@@ -136,11 +140,13 @@ const CoverageView: React.FC = () => {
                             {
                                 caseCount: countryRow.casecount,
                                 totalCases: countryRow.jhu,
-                                name: countryRow._id,
+                                code: countryRow.code,
                                 lat: countryRow.lat,
                                 long: countryRow.long,
                                 coverage: coveragePercentage,
                                 bounds: lookupTableData[countryRow.code].bounds,
+                                lastUploadDate:
+                                    freshnessData[countryRow.code] || 'unknown',
                             },
                         );
 
@@ -148,15 +154,12 @@ const CoverageView: React.FC = () => {
                     }
                 }
             } else {
-                for (const row of completenessData) {
-                    const country = iso.whereCountry(
-                        row.country.replace('_', ' '),
-                    );
-                    const countryCode = country?.alpha2;
-
-                    if (countryCode && lookupTableData[countryCode]) {
+                for (const countryCode of Object.keys(completenessData)) {
+                    if (lookupTableData[countryCode]) {
                         const coverage = Math.round(
-                            row[chosenCompletenessField] as number,
+                            completenessData[countryCode][
+                                chosenCompletenessField
+                            ] as number,
                         );
 
                         mapRef.setFeatureState(
@@ -166,10 +169,13 @@ const CoverageView: React.FC = () => {
                                 id: lookupTableData[countryCode].feature_id,
                             },
                             {
-                                name: country.country,
+                                code: countryCode,
                                 lat: lookupTableData[countryCode].centroid[1],
                                 long: lookupTableData[countryCode].centroid[0],
                                 coverage,
+                                bounds: lookupTableData[countryCode].bounds,
+                                lastUploadDate:
+                                    freshnessData[countryCode] || 'unknown',
                             },
                         );
 
@@ -187,23 +193,25 @@ const CoverageView: React.FC = () => {
         if (
             !e.features ||
             !e.features[0].properties ||
-            !e.features[0].state.name ||
+            !e.features[0].state.code ||
             !mapRef
         )
             return;
 
         const caseCount = e.features[0].state.caseCount || 0;
         const totalCases = e.features[0].state.totalCases;
-        const countryName = e.features[0].state.name;
         const coverage = e.features[0].state.coverage;
+        const lastUploadDate = e.features[0].state.lastUploadDate;
+        const code = e.features[0].state.code;
 
         const lat = e.features[0].state.lat;
         const lng = e.features[0].state.long;
-        const bounds = e.features[0].state.bounds;
         const coordinates: mapboxgl.LngLatLike = { lng, lat };
 
-        const searchQuery = `cases?country=${parseSearchQuery(countryName)}`;
+        const searchQuery = `cases?country=${code}`;
         const url = `${dataPortalUrl}/${searchQuery}`;
+
+        const countryName = getCountryName(code);
 
         const popupContent = (
             <>
@@ -218,8 +226,7 @@ const CoverageView: React.FC = () => {
             </>
         );
 
-        // Fly to the selected country before showing popup
-        mapRef.fitBounds(bounds);
+        dispatch(setSelectedCountryInSidebar({ _id: countryName, code }));
 
         // This has to be done this way in order to allow for React components as a content of the popup
         const popupElement = document.createElement('div');
@@ -227,6 +234,7 @@ const CoverageView: React.FC = () => {
             <MapPopup
                 title={`${countryName} ${coverage}%`}
                 content={popupContent}
+                lastUploadDate={lastUploadDate}
                 buttonText="Explore Country Data"
                 buttonUrl={url}
             />,
