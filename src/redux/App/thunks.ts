@@ -93,3 +93,22 @@ export const fetchFreshnessData = createAsyncThunk<
         throw err;
     }
 });
+
+export const fetchAppVersion = createAsyncThunk<
+    string,
+    void,
+    { rejectValue: string }
+>('app/fetchAppVersion', async (_, { rejectWithValue }) => {
+    try {
+        const response = await fetch('http://localhost:3002/version');
+
+        const versionBlob = await response.blob();
+        const version = await versionBlob.text();
+
+        return version;
+    } catch (err: any) {
+        if (err.response) return rejectWithValue(err.response.message);
+
+        throw err;
+    }
+});

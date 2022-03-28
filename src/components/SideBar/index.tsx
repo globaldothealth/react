@@ -9,6 +9,7 @@ import {
     selectLastUpdateDate,
     selectTotalCases,
     selectTotalCasesIsLoading,
+    selectAppVersion,
 } from 'redux/App/selectors';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import ghListLogo from 'assets/images/gh_list_logo.svg';
@@ -23,6 +24,7 @@ import {
     SideBarTitlesSkeleton,
     CountriesListSkeleton,
     GhListButtonBar,
+    VersionNumber,
 } from './styled';
 import { setSelectedCountryInSidebar } from 'redux/App/slice';
 import { selectSelectedCountryInSideBar } from 'redux/App/selectors';
@@ -56,6 +58,7 @@ const SideBar = () => {
     );
     const completenessDataLoading = useAppSelector(selectIsLoading);
     const selectedCountry = useAppSelector(selectSelectedCountryInSideBar);
+    const appVersion = useAppSelector(selectAppVersion);
 
     // Sidebar has other content in VariantsView and CoverageView
     useEffect(() => {
@@ -396,6 +399,16 @@ const SideBar = () => {
                 See all cases <img src={ghListLogo} />
                 <span>Data</span>
             </GhListButtonBar>
+
+            {appVersion && (
+                <VersionNumber
+                    href="https://github.com/globaldothealth/list/releases/tag/1.10.1"
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    Version: {appVersion}
+                </VersionNumber>
+            )}
         </StyledSideBar>
     );
 };
