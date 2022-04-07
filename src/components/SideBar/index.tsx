@@ -26,7 +26,7 @@ import {
     GhListButtonBar,
     VersionNumber,
 } from './styled';
-import { setSelectedCountryInSidebar } from 'redux/App/slice';
+import { setSelectedCountryInSidebar, setPopup } from 'redux/App/slice';
 import { selectSelectedCountryInSideBar } from 'redux/App/selectors';
 import { CountryDataRow, SelectedCountry } from 'models/CountryData';
 import { CompletenessDropdown } from './CompletenessDropdown';
@@ -77,13 +77,17 @@ const SideBar = () => {
 
     const handleOnCountryClick = (country: SelectedCountry) => {
         dispatch(setSelectedCountryInSidebar(country));
+        dispatch(setPopup({ isOpen: true, countryCode: country.code }));
     };
 
     const handleAutocompleteCountrySelect = (
         event: SyntheticEvent<Element, Event>,
         value: CountryDataRow | SelectedCountry | null,
     ) => {
-        value !== null && dispatch(setSelectedCountryInSidebar(value));
+        if (value === null) return; 
+
+        dispatch(setSelectedCountryInSidebar(value));
+        dispatch(setPopup({ isOpen: true, countryCode: value.code }));
     };
 
     // Parse completeness data in coverage view

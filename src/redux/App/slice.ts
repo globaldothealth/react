@@ -11,6 +11,11 @@ import { fetchCompletenessData } from 'redux/CoverageView/thunks';
 import { CountryDataRow, SelectedCountry } from 'models/CountryData';
 import { ParsedFreshnessData } from 'models/FreshnessData';
 
+interface IPopup {
+    isOpen: boolean;
+    countryCode: string;
+}
+
 interface AppState {
     isLoading: boolean;
     isMapLoading: boolean;
@@ -22,6 +27,7 @@ interface AppState {
     freshnessData: ParsedFreshnessData;
     freshnessLoading: boolean;
     appVersion: string | undefined;
+    popup: IPopup;
 }
 
 const initialState: AppState = {
@@ -35,6 +41,10 @@ const initialState: AppState = {
     freshnessData: {},
     freshnessLoading: true,
     appVersion: undefined,
+    popup: {
+        isOpen: false,
+        countryCode: '',
+    },
 };
 
 export const appSlice = createSlice({
@@ -52,6 +62,9 @@ export const appSlice = createSlice({
         },
         setLastUpdateDate: (state, action: PayloadAction<string>) => {
             state.lastUpdateDate = action.payload;
+        },
+        setPopup: (state, action: PayloadAction<IPopup>) => {
+            state.popup = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -142,6 +155,7 @@ export const {
     setIsMapLoading,
     setSelectedCountryInSidebar,
     setLastUpdateDate,
+    setPopup,
 } = appSlice.actions;
 
 export default appSlice.reducer;
