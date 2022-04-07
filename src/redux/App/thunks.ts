@@ -2,7 +2,11 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CountryDataRow, TotalCasesValues } from 'models/CountryData';
 import { FreshnessData, ParsedFreshnessData } from 'models/FreshnessData';
 import { setLastUpdateDate } from './slice';
-import { parseFreshnessData } from 'utils/helperFunctions';
+import {
+    parseFreshnessData,
+    getDataPortalUrl,
+    Env,
+} from 'utils/helperFunctions';
 import { parse } from 'date-fns';
 
 // Fetch countries data from AWS S3 JSON file
@@ -99,8 +103,11 @@ export const fetchAppVersion = createAsyncThunk<
     void,
     { rejectValue: string }
 >('app/fetchAppVersion', async (_, { rejectWithValue }) => {
+    const env = process.env.REACT_APP_ENV as Env;
+    const dataPortalUrl = getDataPortalUrl(env);
+
     try {
-        const response = await fetch('http://localhost:3002/version');
+        const response = await fetch(`${dataPortalUrl}/version`);
 
         const versionBlob = await response.blob();
         const version = await versionBlob.text();
