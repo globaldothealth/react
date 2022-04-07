@@ -402,7 +402,7 @@ const SideBar = () => {
 
             {appVersion && (
                 <VersionNumber
-                    href="https://github.com/globaldothealth/list/releases/tag/1.10.1"
+                    href={`https://github.com/globaldothealth/list/releases/tag/${appVersion}`}
                     target="_blank"
                     rel="noreferrer"
                 >
