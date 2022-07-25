@@ -211,6 +211,13 @@ const CountryView: React.FC = () => {
             'waterway-label',
         );
 
+        //Filter out countries without any data
+        mapRef.setFilter('countries-join', [
+            'in',
+            'iso_3166_1',
+            ...countriesData.map((country) => country['code']),
+        ]);
+
         // Change the mouse cursor to pointer when hovering above this layer
         mapRef.on('mouseenter', 'countries-join', () => {
             mapRef.getCanvas().style.cursor = 'pointer';
