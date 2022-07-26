@@ -215,7 +215,7 @@ const CountryView: React.FC = () => {
         mapRef.setFilter('countries-join', [
             'in',
             'iso_3166_1',
-            ...countriesData.map((country) => country['code']),
+            ...countriesData.map((country) => country.code),
         ]);
 
         // Change the mouse cursor to pointer when hovering above this layer
