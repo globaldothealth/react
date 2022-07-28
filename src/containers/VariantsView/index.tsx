@@ -128,7 +128,7 @@ const VariantsView: React.FC = () => {
                                 },
                             },
                         },
-                        'country-label',
+                        'admin-1-boundary',
                     );
                 }
 
@@ -148,7 +148,7 @@ const VariantsView: React.FC = () => {
                                 },
                             },
                         },
-                        'waterway-label',
+                        'admin-1-boundary',
                     );
                 }
 

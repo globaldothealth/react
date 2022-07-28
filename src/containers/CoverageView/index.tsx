@@ -323,7 +323,7 @@ const CoverageView: React.FC = () => {
                     'fill-outline-color': CoverageViewColors.Outline,
                 },
             },
-            'waterway-label',
+            'admin-1-boundary',
         );
 
         //Filter out countries without any data
