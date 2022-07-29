@@ -208,7 +208,7 @@ const CountryView: React.FC = () => {
                     'fill-outline-color': CountryViewColors.Outline,
                 },
             },
-            'waterway-label',
+            'admin-1-boundary',
         );
 
         //Filter out countries without any data
