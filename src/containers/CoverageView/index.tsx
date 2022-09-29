@@ -20,7 +20,12 @@ import {
 } from 'redux/CoverageView/selectors';
 import { fetchCompletenessData } from 'redux/CoverageView/thunks';
 import Loader from 'components/Loader';
-import { getCoveragePercentage, getCountryName } from 'utils/helperFunctions';
+import {
+    getCoveragePercentage,
+    getCountryName,
+    getAdjustedLat,
+    getAdjustedLng,
+} from 'utils/helperFunctions';
 import countryLookupTable from 'data/admin0-lookup-table.json';
 import { CoverageViewColors } from 'models/Colors';
 import MapPopup from 'components/MapPopup';
@@ -140,11 +145,11 @@ const CoverageView: React.FC = () => {
 
         const lat =
             chosenCompletenessField === 'cases'
-                ? country.lat
+                ? getAdjustedLat(country.lat, country.code)
                 : lookupTableData[countryCode].centroid[1];
         const lng =
             chosenCompletenessField === 'cases'
-                ? country.long
+                ? getAdjustedLng(country.long, country.code)
                 : lookupTableData[countryCode].centroid[0];
         const coordinates: mapboxgl.LngLatLike = { lng, lat };
 
