@@ -113,6 +113,7 @@ describe('<SideBar />', () => {
         cy.wait('@fetchCountriesData');
 
         cy.get('#completeness-field-select').click();
+        cy.wait(1000);
         cy.get('[data-value="location.country"]').scrollIntoView().click();
 
         cy.contains(/United States/i).should('not.exist');
