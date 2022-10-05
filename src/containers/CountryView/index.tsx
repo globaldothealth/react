@@ -21,7 +21,11 @@ import MapPopup from 'components/MapPopup';
 import { MapContainer } from 'theme/globalStyles';
 import Loader from 'components/Loader';
 import { PopupContentText } from './styled';
-import { getCountryName } from 'utils/helperFunctions';
+import {
+    getAdjustedLat,
+    getAdjustedLng,
+    getCountryName,
+} from 'utils/helperFunctions';
 
 const dataLayers: LegendRow[] = [
     { label: '< 10k', color: CountryViewColors['10K'] },
@@ -112,8 +116,8 @@ const CountryView: React.FC = () => {
 
         const caseCount = country.casecount;
         const lastUploadDate = freshnessData[countryCode] || 'unknown';
-        const lat = country.lat;
-        const lng = country.long;
+        const lat = getAdjustedLat(country.lat, country.code);
+        const lng = getAdjustedLng(country.long, country.code);
         const coordinates: mapboxgl.LngLatLike = { lng, lat };
         const searchQuery = `cases?country=${countryCode}`;
         const url = `${dataPortalUrl}/${searchQuery}`;
@@ -208,7 +212,7 @@ const CountryView: React.FC = () => {
                     'fill-outline-color': CountryViewColors.Outline,
                 },
             },
-            'waterway-label',
+            'admin-1-boundary',
         );
 
         //Filter out countries without any data

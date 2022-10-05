@@ -403,3 +403,22 @@ export const getDataPortalUrl = (env: Env) => {
             return 'https://data.covid-19.global.health';
     }
 };
+
+export const getAdjustedLng = (lng: number, code: string): number => {
+    if (code === 'MY') return lng + 11;
+    if (code === 'NZ') return lng - 6;
+    if (code === 'NO') return lng + 5;
+    if (code === 'DK') return lng + 2;
+    if (code === 'BH') return lng - 0.1;
+    if (code === 'GR') return lng + 1;
+    return lng;
+};
+
+export const getAdjustedLat = (lat: number, code: string): number => {
+    if (code === 'MY') return lat - 2;
+    if (code === 'NZ') return lat - 4;
+    if (code === 'NO') return lat + 5;
+    if (code === 'DK') return lat - 1;
+    if (code === 'GR') return lat - 0.2;
+    return lat;
+};
