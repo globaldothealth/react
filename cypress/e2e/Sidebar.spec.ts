@@ -87,10 +87,10 @@ describe('<SideBar />', () => {
         cy.wait('@fetchCountriesData');
 
         cy.get('[data-cy="autocomplete-input"').should('have.value', '');
-        const listedCountries = cy.get('[data-cy="listed-country"]');
-        listedCountries.should('have.length.gte', 5);
+        cy.get('[data-cy="listed-country"]').should('have.length.gte', 5);
 
         cy.contains(/Germany/i).click();
+        cy.wait(1000);
 
         cy.get('[data-cy="autocomplete-input"').should('have.value', 'Germany');
     });
@@ -113,8 +113,7 @@ describe('<SideBar />', () => {
         cy.wait('@fetchCountriesData');
 
         cy.get('#completeness-field-select').click();
-        cy.get('[data-value="location.country"]').scrollIntoView();
-        cy.contains('location.country').click();
+        cy.get('[data-value="location.country"]').scrollIntoView().click();
 
         cy.contains(/United States/i).should('not.exist');
         cy.contains(/Afghanistan/i);
